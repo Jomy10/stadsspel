@@ -1,0 +1,16 @@
+**/zig-cache
+**/zig-out
+**/out
+**/*.DS_Store
+app/.ignore
+**/a.out
+**/*.dSYM
+**/.cache
+**/.beaver
+app/compile_commands.json
+app/lldb.txt
+**/*.osm*
+**/*.o5m*
+
+app/test
+app/__common
