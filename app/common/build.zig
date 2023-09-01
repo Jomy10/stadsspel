@@ -1,4 +1,5 @@
 const std = @import("std");
+const builtin = @import("builtin");
 
 const Library = enum {
     all,
@@ -11,7 +12,32 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    std.debug.print("Building for {}\n", .{optimize});
+    std.debug.print("Building for optimization level: {}\n", .{optimize});
+    std.debug.print("Building for {any} {any}\n", .{ target.cpu_arch, target.os_tag });
+
+    const sdk_path = if (b.sysroot) |sysroot| sysroot else switch (builtin.os.tag) {
+        .macos => blk: {
+            const target_info = std.zig.system.NativeTargetInfo.detect(target) catch
+                @panic("Couldn't detect native target inifo");
+            const sdk = std.zig.system.darwin.getSdk(b.allocator, target_info.target) orelse
+                @panic("Couldn't detect Apple SDK");
+            break :blk sdk.path;
+        },
+        else => {
+            @panic("Missing path to Apple SDK");
+        },
+    };
+    b.sysroot = sdk_path;
+
+    var build_options = b.addOptions();
+    build_options.addOption(bool, "no_cstd_import", if (target.os_tag) |tag| switch (tag) {
+        .ios => true, // problems linking to C standarrd library
+        else => false,
+    } else false);
+    build_options.addOption(bool, "nsdictionary", if (target.os_tag) |tag| switch (tag) {
+        .ios => true,
+        else => false,
+    } else false);
 
     //=== options ===//
     const compile_c = b.option(bool, "compile-c", "Compile to a library usable from C") orelse false;
@@ -30,6 +56,13 @@ pub fn build(b: *std.Build) void {
             .{ .name = "linked_list", .module = ll_mod },
         },
     });
+
+    //=== Dependencies ===//
+    const objc_mod = b.dependency("zig_objc", .{
+        .target = target,
+        .optimize = optimize,
+    });
+    _ = objc_mod;
 
     //=== Static libs ===//
     const ll_lib = b.addStaticLibrary(.{
@@ -54,7 +87,16 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
     render_objects_lib.addModule("hashmap", hm_mod);
+    render_objects_lib.addModule("build_options", build_options.createModule());
     render_objects_lib.addIncludePath(.{ .path = "../out/include" });
+    // darwin platforms (TODO: check and only include of target is darwin (simulator, ios, macos, tvos, ...))
+    // const sdk = std.zig.system.darwin.getSdk(b.allocator, target.toTarget()).?;
+    // defer sdk.deinit(allocator);
+    render_objects_lib.addSystemIncludePath(.{ .path = sdk_path });
+
+    // render_objects_lib.addFrameworkPath(.{ .path = b.pathJoin(&.{ b.sysroot.?, "/System/Library/Frameworks" }) });
+    // render_objects_lib.addSystemIncludePath(.{ .path = b.pathJoin(&.{ b.sysroot.?, "/usr/include" }) });
+    // render_objects_lib.addLibraryPath(.{ .path = b.pathJoin(&.{ b.sysroot.?, "/usr/lib" }) });
 
     const libs: [3]*std.Build.Step.Compile = .{ ll_lib, hm_lib, render_objects_lib };
     if (compile_c) {

@@ -2,9 +2,9 @@
 #define _MAP_VIEW_H
 
 #include <map_data/render_objects.h>
-#include <SDL3/SDL.h>
+#include <render_frontend/renderer.h>
 #include <hashmap.h>
 
-void renderMapView(SDL_Renderer* gRenderer, int renX, int renY, int renW, int renH, MapRenderObjects* objs, struct hashmap* mapnodes);
+void renderMapView(Renderer gRenderer, int renX, int renY, int renW, int renH, const MapRenderObjects* objs, const struct hashmap* mapnodes);
 
 #endif

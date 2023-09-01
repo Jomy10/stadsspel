@@ -1,18 +1,31 @@
 const std = @import("std");
 const hashmap_pkg = @import("hashmap");
 const HashMap = hashmap_pkg.HashMap;
-const StringHashMap = hashmap_pkg.StringHashMap;
+// const StringHashMap = hashmap_pkg.StringHashMap;
 const Allocator = std.mem.Allocator;
 // const ArrayList = std.ArrayList;
-const AutoHashMap = std.AutoHashMap;
-const ArrayHashMap = std.AutoArrayHashMap;
-// const StringHashMap = std.StringHashMap;
-const builtin = @import("builtin");
-const DEBUG: bool = builtin.mode == std.builtin.OptimizeMode.Debug;
+// const AutoHashMap = std.AutoHashMap;
+// const ArrayHashMap = std.AutoArrayHashMap;
+const StringHashMap = std.StringHashMap;
+// const builtin = @import("builtin");
+// const DEBUG: bool = builtin.mode == std.builtin.OptimizeMode.Debug;
+const build_options = @import("build_options");
 
-const string = @cImport({
-    @cInclude("string.h");
-});
+const string = switch (build_options.no_cstd_import) {
+    true => struct {
+        pub fn strlen(str: [*]const u8) usize {
+            var i: usize = 0;
+            var val: u8 = str[i];
+            while (val != 0) : (i += 1) {
+                val = str[i];
+            }
+            return i - 1;
+        }
+    },
+    false => @cImport({
+        @cInclude("string.h");
+    }),
+};
 
 fn Vec(comptime T: type) type {
     return struct {
@@ -88,13 +101,13 @@ export fn destroyRenderObjects(self: *CMapRenderObjects) void {
     std.heap.c_allocator.destroy(ptr);
 }
 
-export fn RO_getStreets(cobjs: *CMapRenderObjects, streets: [*c][*]CRO_Street, size: *c_int) void {
+export fn RO_getStreets(cobjs: *const CMapRenderObjects, streets: [*c][*]CRO_Street, size: *c_int) void {
     var objs: *MapRenderObjects = @as(*MapRenderObjects, @ptrCast(@alignCast(cobjs.ptr)));
     streets.* = objs.streets.items.ptr;
     size.* = @intCast(objs.streets.len);
 }
 
-export fn RO_getNode(cobjs: *CMapRenderObjects, id: u64) callconv(.C) ?*Node {
+export fn RO_getNode(cobjs: *const CMapRenderObjects, id: u64) callconv(.C) ?*Node {
     return @as(*MapRenderObjects, @ptrCast(@alignCast(cobjs.ptr))).nodes.get(id);
 }
 
@@ -147,7 +160,7 @@ export fn RO_determineBoundsFromStreets(cobjs: *CMapRenderObjects) void {
     };
 }
 
-export fn RO_getBounds(cobjs: *CMapRenderObjects) *Bounds {
+export fn RO_getBounds(cobjs: *const CMapRenderObjects) *Bounds {
     return &@as(*MapRenderObjects, @ptrCast(@alignCast(cobjs.ptr))).bounds;
 }
 
@@ -213,15 +226,30 @@ pub const MapRenderObjects = struct {
     }
 
     fn addRenderObjectWay(self: *MapRenderObjects, way: *Way) void {
-        const highway: ?*[]const u8 = way.tags.get("highway");
+        // std.debug.print("Tags count = {}\n", .{way.tags.count()});
+        // var keyiter = way.tags.keyIterator();
+        // std.debug.print("Tags = {{", .{});
+        // var key: ?*[]const u8 = keyiter.next();
+        // while (key != null) : (key = keyiter.next()) {
+        //     std.debug.print("{}- {s}, ", .{ key, key.?.* });
+        // }
+        // std.debug.print("}}\n", .{});
+        // var keys = way.tags.keys(std.heap.c_allocator) catch |err| {
+        //     std.debug.print("{}\n", .{err});
+        //     return;
+        // };
+        // defer keys.deinit();
+        // std.debug.print("Tags: {s}\n", .{keys.items});
+        const highway: ?[]const u8 = way.tags.get("highway");
+        // std.debug.print("Highway = {?s}\n", .{highway});
         // const nodes = self.allocator.alloc(u64, way.nodes.items.size) catch |err| {
         if (highway != null) {
-            std.debug.print("Highway: {s}\n", .{highway.?.*});
+            // std.debug.print("Highway: {s}\n", .{highway.?});
             const nodes: []u64 = self.allocator.dupe(u64, way.nodes.items[0..way.nodes.len]) catch |err| {
                 std.debug.print("Couldn't allocate nodes array for street: {}\n", .{err});
                 return;
             };
-            const highway_type: [:0]u8 = self.allocator.dupeZ(u8, highway.?.*) catch |err| {
+            const highway_type: [:0]u8 = self.allocator.dupeZ(u8, highway.?) catch |err| {
                 std.debug.print("{}", .{err});
                 return;
             };
@@ -239,9 +267,14 @@ pub const MapRenderObjects = struct {
     }
 };
 
+export fn printObjsSummary(cobjs: *CMapRenderObjects) void {
+    var objs: *MapRenderObjects = @ptrCast(@alignCast(cobjs.ptr.?));
+    std.debug.print("RenderObjects: streetscount={}, nodescount={} \n  Bounds={}\n", .{ objs.streets.len, objs.nodes.len(), objs.bounds });
+}
+
 export fn printObjs(cobjs: *CMapRenderObjects) void {
     var objs: *MapRenderObjects = @ptrCast(@alignCast(cobjs.ptr.?));
-    std.debug.print("RenderObjects: {}\n", .{objs.bounds});
+    std.debug.print("RenderObjects: streetscount={}, nodescount={} \n  Bounds={}\n", .{ objs.streets.len, objs.nodes.len(), objs.bounds });
     // for (objs.streets.items) |street| {
     var i: u32 = 0;
     while (i < objs.streets.len) : (i += 1) {
@@ -254,7 +287,8 @@ const Way = struct {
     id: u64,
     nodes: Vec(u64),
     // Tag: string -> string
-    tags: StringHashMap([]const u8, WAY_TAGS_CAP),
+    //tags: StringHashMap([]const u8, WAY_TAGS_CAP),
+    tags: StringHashMap([]const u8),
     allocator: Allocator,
     arena: std.heap.ArenaAllocator,
 };
@@ -274,7 +308,7 @@ export fn initWay() ?*anyopaque {
         std.debug.print("Couldn't init way (nodes couldn't be allocated): {}\n", .{err});
         return null;
     };
-    way.tags = StringHashMap([]const u8, WAY_TAGS_CAP).init(std.heap.c_allocator);
+    way.tags = StringHashMap([]const u8).init(std.heap.c_allocator);
     return cway;
 }
 
@@ -291,7 +325,7 @@ export fn setWay(cway: *anyopaque, id: u64) void {
     var way: *Way = @ptrCast(@alignCast(cway));
     way.id = id;
     way.nodes.clear();
-    way.tags.clear();
+    way.tags.clearRetainingCapacity();
     _ = way.arena.reset(.retain_capacity);
 }
 
@@ -316,6 +350,8 @@ export fn way_addTag(cway: *anyopaque, key: [*c]const u8, val: [*c]const u8) voi
 
     @memcpy(k, @as([*]const u8, @ptrCast(key)));
     @memcpy(v, @as([*]const u8, @ptrCast(val)));
+
+    // std.debug.print("Allocated key {s} with length {}", .{ k, string.strlen(key) });
 
     way.tags.put(k, v) catch |err| {
         std.debug.print("Couldn't put tag: {}\n", .{err});

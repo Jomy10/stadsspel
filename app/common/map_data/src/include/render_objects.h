@@ -1,6 +1,8 @@
 #ifndef _RENDER_OBJECTS_H
 #define _RENDER_OBJECTS_H
 
+void test_ios(void);
+
 #include <stdlib.h>
 // #include <stdint.h>
 // #define u64 uint64_t
@@ -11,11 +13,12 @@ typedef struct CMapRenderObjects {
   void* ptr;
 } MapRenderObjects;
 
-MapRenderObjects makeRenderObjects();
+MapRenderObjects makeRenderObjects(void);
 
 void destroyRenderObjects(MapRenderObjects*);
 
 void printObjs(MapRenderObjects*);
+void printObjsSummary(MapRenderObjects*);
 
 //== Constructing ==//
 typedef struct CNode {
@@ -26,7 +29,7 @@ typedef struct CNode {
 
 void addNode(MapRenderObjects*, Node);
 
-void* initWay();
+void* initWay(void);
 void freeWay(void*);
 /// Resets all memory associated to a way and makes a new one
 void setWay(void*, u64 id);
@@ -54,12 +57,12 @@ void RO_determineBoundsFromStreets(MapRenderObjects*);
 
 //== Accessing ==//
 
-void RO_getStreets(MapRenderObjects*, RO_Street**, int* arr_size);
+void RO_getStreets(const MapRenderObjects*, RO_Street**, int* arr_size);
 
 /// Returns NULL if the node could not be found
-Node* RO_getNode(MapRenderObjects*, u64);
+Node* RO_getNode(const MapRenderObjects*, u64);
 
-Bounds* RO_getBounds(MapRenderObjects*);
+Bounds* RO_getBounds(const MapRenderObjects*);
 
 //=== Iterator ===//
 

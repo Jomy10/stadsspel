@@ -8,6 +8,10 @@
 
 // http://web.archive.org/web/20160306052035/http://nadeausoftware.com/articles/2012/01/c_c_tip_how_use_compiler_predefined_macros_detect_operating_system#Howtolistpredefinedmacros
 // Apple: Availability.h for OS versions (see usage https://opensource.apple.com/source/Libc/Libc-1081.1.3/include/regex.h.auto.html)
+
+#ifndef _OS_DEF_H
+#define _OS_DEF_H
+
 #define osAIX 0
 #define osDragonFlyBSD 0
 #define osFreeBSD 0
@@ -127,4 +131,6 @@
     #undef isPOSIX
     #define isPOSIX 1
   #endif
+#endif
+
 #endif

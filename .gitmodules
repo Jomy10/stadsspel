@@ -4,6 +4,6 @@
 [submodule "deps/hashmap.c"]
 	path = app/deps/hashmap.c
 	url = https://github.com/tidwall/hashmap.c
-[submodule "deps/o5mreader"]
+[submodule "app/deps/o5mreader"]
 	path = app/deps/o5mreader
-	url = https://github.com/Jomy10/o5mreader
+	url = https://github.com/jomy10/o5mreader

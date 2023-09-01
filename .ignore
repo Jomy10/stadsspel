@@ -1,0 +1,6 @@
+deps
+*.xcassets
+*.lproj
+*.xcodeproj
+**/a.out
+*.dSYM

@@ -1,10 +1,11 @@
-cmd :build_zig_all, all("common/**/*.zig") do
+cmd :build_zig_all do# Zig has it own caching system, all("common/**/*.zig") do
   sh "cd common && #{ZIGCC} build " +
     "--prefix #{File.join("..", ZIG_OUT)} " +
     "--cache-dir #{File.join("..", ZIG_CACHE)} " +
-    "--global-cache-dir #{File.join("..", ZIG_CACHE)} " +
+    # "--global-cache-dir #{File.join("..", ZIG_CACHE)} " +
     "-Dcompile-c=true " +
-    "-Doptimize=#{OPT=='0'?'Debug':'ReleaseFast'} "
+    "-Doptimize=#{OPT=='DEBUG'?'Debug':'ReleaseFast'} " +
+    "#{ZIG_PLATFORM_FLAGS} "
 
   Dir[File.join(ZIG_OUT, "lib", "lib*.a")].each do |file|
     if !File.exist?(File.join(LIB_OUT, File.basename(file)))

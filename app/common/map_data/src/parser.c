@@ -2,12 +2,20 @@
 #include <render_objects.h>
 #include <stdio.h>
 #include <o5mreader.h>
+#include <parse.h>
 
 /// The returned value should be freed
 MapRenderObjects parseMapToRenderObjects(const char* filename) {
+  FILE* f = fopen(filename, "rb");
+  MapRenderObjects objs = parseMapFileDescriptorToRenderObjects(f);
+  fclose(f);
+  return objs;
+}
+
+/// The returned value should be freed
+MapRenderObjects parseMapFileDescriptorToRenderObjects(FILE* f) {
   MapRenderObjects objs = makeRenderObjects();
 
-  FILE* f = fopen(filename, "rb");
   O5mreader* reader;
   O5mreaderDataset ds;
   O5mreaderIterateRet ret, ret2;
@@ -18,9 +26,13 @@ MapRenderObjects parseMapToRenderObjects(const char* filename) {
 
   void* way = initWay();
 
+  printf("Opened file %p for o5mreader %p\n", f, reader);
+
   while ((ret = o5mreader_iterateDataSet(reader, &ds)) == O5MREADER_ITERATE_RET_NEXT) {
+    printf("ret = %i\n", ret);
     switch (ds.type) {
       case O5MREADER_DS_NODE:
+        printf(">node\n");
         addNode(&objs, (Node) {
           .id = ds.id,
           .lat = ds.lat,
@@ -28,6 +40,7 @@ MapRenderObjects parseMapToRenderObjects(const char* filename) {
         });
         break;
       case O5MREADER_DS_WAY:
+        printf(">way\n");
         setWay(way, ds.id);
 
         while ((ret2 = o5mreader_iterateNds(reader, &nodeId)) == O5MREADER_ITERATE_RET_NEXT) {
@@ -42,8 +55,9 @@ MapRenderObjects parseMapToRenderObjects(const char* filename) {
     }
   }
 
+  printf("Last ret was = %i (err = %i, done = %i)\n", ret, O5MREADER_ITERATE_RET_ERR, O5MREADER_ITERATE_RET_DONE);
+
   o5mreader_close(reader);
-  fclose(f);
   freeWay(way);
 
   return objs;

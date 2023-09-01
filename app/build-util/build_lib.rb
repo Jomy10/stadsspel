@@ -17,7 +17,7 @@ def def_lib(name, path, include_sub_dir: "include", warn: WARN, include: [], inc
   end
 
   cmd "build_#{name}__source".to_sym, each(File.join(path, "**/*.c")) do
-    sh "#{CC} -c #{warn} #{CFLAGS} " +
+    sh "#{CC} -c #{warn} #{CFLAGS} #{PLATFORM_FLAGS} " +
       # Include directories
       "#{include.map { |i| "-I#{i}"}.join " "} " +
       "-I#{File.join(path, include_sub_dir)} " +

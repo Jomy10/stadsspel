@@ -74,6 +74,15 @@ pub fn LinkedList(comptime T: type) type {
                 return &self.tail.?.elem;
             }
         }
+
+        pub fn len(self: *const Self) usize {
+            var i: usize = 0;
+            var elem: ?*Node = self.head;
+            while (elem != null) : (elem = elem.?.next) {
+                i += 1;
+            }
+            return i;
+        }
     };
 }
 

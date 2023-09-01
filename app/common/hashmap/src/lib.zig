@@ -5,6 +5,7 @@ const meta = std.meta;
 const trait = meta.trait;
 const autoHash = std.hash.autoHash;
 const LinkedList = @import("linked_list").LinkedList;
+const ArrayList = std.ArrayList;
 
 fn strEq(a: *const []const u8, b: *const []const u8) bool {
     return std.mem.eql(u8, a.*, b.*);
@@ -98,9 +99,10 @@ pub fn HashMap(comptime K: type, comptime V: type, comptime cap: usize, comptime
         }
 
         pub fn clear(self: *Self) void {
-            for (self.data) |elem| {
+            for (self.data, 0..) |elem, i| {
                 if (elem != null) {
                     @constCast(&elem.?).deinit();
+                    self.data[i] = null;
                 }
             }
         }
@@ -141,6 +143,27 @@ pub fn HashMap(comptime K: type, comptime V: type, comptime cap: usize, comptime
 
         pub fn iterator(self: *Self) Self.Iterator {
             return Self.Iterator.init(self);
+        }
+
+        pub fn len(self: *const Self) usize {
+            var i: usize = 0;
+            for (self.data) |ll| {
+                if (ll == null) continue;
+                i += ll.?.len();
+            }
+            return i;
+        }
+
+        pub fn keys(self: *const Self, allocator: Allocator) !ArrayList(K) {
+            var keysl = ArrayList(K).init(allocator);
+            for (self.data) |ll| {
+                if (ll == null) continue;
+                var elem = ll.?.head;
+                while (elem != null) : (elem = elem.?.next) {
+                    try keysl.append(elem.?.elem.key);
+                }
+            }
+            return keysl;
         }
     };
 }
