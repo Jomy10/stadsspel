@@ -1,12 +1,12 @@
-#include "include/map_view.h"
+#include <map_view.h>
 
 #include <assert.h>
 #include <map_data/render_objects.h>
-#include <render_frontend/renderer.h>
+#include <renderer/renderer.h>
 #include <util/types.h>
 //#include <util/log.h>
-#include "include/colors.h"
-#include "include/coordinate_transform.h"
+#include <colors.h>
+#include <coordinate_transform.h>
 #include <hashmap.h>
 #include <mercator.h>
 #include <stdio.h>
@@ -69,11 +69,11 @@ void renderStreets(Renderer gRenderer, int renX, int renY, int renW, int renH, c
       vec_append(points, &point);
     }
 
-    printf("Rendering street ");
-    for (int i = 0; i < points->size; i++) {
-      printf(" %f, %f >", ((GPoint*)points->values)[i].x, ((GPoint*)points->values)[i].y);
-    }
-    printf("\n");
+    // printf("Rendering street ");
+    // for (int i = 0; i < points->size; i++) {
+    //   printf(" %f, %f >", ((GPoint*)points->values)[i].x, ((GPoint*)points->values)[i].y);
+    // }
+    // printf("\n");
     renderStreet(gRenderer, (GPoint *)points->values, points->size, streets[streetIdx].type);
     vec_clear(points);
   }
@@ -82,5 +82,5 @@ void renderStreets(Renderer gRenderer, int renX, int renY, int renW, int renH, c
 }
 
 void renderStreet(Renderer gRenderer, const GPoint *points, int pointsCount, const char *kind) {
-  gDrawLines(gRenderer, points, pointsCount);
+  gDrawLines(gRenderer, points, pointsCount, null);
 }

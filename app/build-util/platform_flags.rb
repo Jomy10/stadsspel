@@ -19,7 +19,7 @@ def get_platform_flags(platform)
         #"-Fdeps/SDL/XCode/SDL/"
     when 'ios'
       sdk_root = `xcrun --sdk iphoneos --show-sdk-path`.gsub("\n", "")
-      return "-arch armv7" +
+      return "-arch armv7 " +
         "-mcpu=cortex-a8 -marm " +
         "-isysroot #{sdk_root} " +
         # "-syslibroot #{sdk_root} " +

@@ -57,13 +57,6 @@ pub fn build(b: *std.Build) void {
         },
     });
 
-    //=== Dependencies ===//
-    const objc_mod = b.dependency("zig_objc", .{
-        .target = target,
-        .optimize = optimize,
-    });
-    _ = objc_mod;
-
     //=== Static libs ===//
     const ll_lib = b.addStaticLibrary(.{
         .name = "linked_list",

@@ -17,10 +17,10 @@
 		085DF52A2AA117B9001CC9CC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 085DE1412AA1131F001CC9CC /* LaunchScreen.storyboard */; };
 		085DF52B2AA117BC001CC9CC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 085DE13F2AA1131F001CC9CC /* Assets.xcassets */; };
 		085DF52C2AA117BE001CC9CC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 085DE13C2AA1131C001CC9CC /* Main.storyboard */; };
-		085DF5BC2AA128E0001CC9CC /* map_view.c in Sources */ = {isa = PBXBuildFile; fileRef = 085DF56B2AA128DF001CC9CC /* map_view.c */; };
-		085DF5BD2AA128E0001CC9CC /* renderer.c in Sources */ = {isa = PBXBuildFile; fileRef = 085DF5712AA128DF001CC9CC /* renderer.c */; };
-		085DF5BE2AA128E0001CC9CC /* coordinate_transform.c in Sources */ = {isa = PBXBuildFile; fileRef = 085DF5722AA128DF001CC9CC /* coordinate_transform.c */; };
-		085DF5C22AA12A6E001CC9CC /* rendererImpl.m in Sources */ = {isa = PBXBuildFile; fileRef = 085DF5C12AA12A6E001CC9CC /* rendererImpl.m */; };
+		0861E64C2AA38621003CFABD /* uirenderer.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0861E6062AA38621003CFABD /* uirenderer.xcframework */; };
+		0861E64D2AA38621003CFABD /* renderer.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0861E64B2AA38621003CFABD /* renderer.xcframework */; };
+		0861E64E2AA38636003CFABD /* renderer.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0861E64B2AA38621003CFABD /* renderer.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		0861E64F2AA38636003CFABD /* uirenderer.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0861E6062AA38621003CFABD /* uirenderer.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		08DD7D9F2AA1422E005A9582 /* hashmap.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 085DE2662AA11588001CC9CC /* hashmap.xcframework */; };
 		08DD7DA02AA1422E005A9582 /* hashmap.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 085DE2662AA11588001CC9CC /* hashmap.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		08DD7DA12AA1422E005A9582 /* map_data.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 085DE2612AA11588001CC9CC /* map_data.xcframework */; };
@@ -558,6 +558,8 @@
 				08DD7DA42AA1422E005A9582 /* mercator.xcframework in Embed Frameworks */,
 				08DD7DAC2AA1422F005A9582 /* vec.xcframework in Embed Frameworks */,
 				08DD7DA02AA1422E005A9582 /* hashmap.xcframework in Embed Frameworks */,
+				0861E64E2AA38636003CFABD /* renderer.xcframework in Embed Frameworks */,
+				0861E64F2AA38636003CFABD /* uirenderer.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3003,15 +3005,8 @@
 		085DED6D2AA11592001CC9CC /* parser.c.8072B462B20425D7.idx */ = {isa = PBXFileReference; lastKnownFileType = file; path = parser.c.8072B462B20425D7.idx; sourceTree = "<group>"; };
 		085DED6E2AA11592001CC9CC /* os.h.3EC7D8A158884F3D.idx */ = {isa = PBXFileReference; lastKnownFileType = file; path = os.h.3EC7D8A158884F3D.idx; sourceTree = "<group>"; };
 		085DED6F2AA11592001CC9CC /* map(1).osm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "map(1).osm"; sourceTree = "<group>"; };
-		085DF56B2AA128DF001CC9CC /* map_view.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = map_view.c; sourceTree = "<group>"; };
-		085DF56D2AA128DF001CC9CC /* renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = renderer.h; sourceTree = "<group>"; };
-		085DF56E2AA128DF001CC9CC /* coordinate_transform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = coordinate_transform.h; sourceTree = "<group>"; };
-		085DF56F2AA128DF001CC9CC /* colors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = colors.h; sourceTree = "<group>"; };
-		085DF5702AA128DF001CC9CC /* map_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = map_view.h; sourceTree = "<group>"; };
-		085DF5712AA128DF001CC9CC /* renderer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = renderer.c; sourceTree = "<group>"; };
-		085DF5722AA128DF001CC9CC /* coordinate_transform.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = coordinate_transform.c; sourceTree = "<group>"; };
-		085DF5C02AA128F1001CC9CC /* renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = renderer.h; sourceTree = "<group>"; };
-		085DF5C12AA12A6E001CC9CC /* rendererImpl.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = rendererImpl.m; sourceTree = "<group>"; };
+		0861E6062AA38621003CFABD /* uirenderer.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = uirenderer.xcframework; sourceTree = "<group>"; };
+		0861E64B2AA38621003CFABD /* renderer.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = renderer.xcframework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -3021,10 +3016,12 @@
 			files = (
 				08DD7DA32AA1422E005A9582 /* mercator.xcframework in Frameworks */,
 				08DD7DA12AA1422E005A9582 /* map_data.xcframework in Frameworks */,
+				0861E64C2AA38621003CFABD /* uirenderer.xcframework in Frameworks */,
 				08DD7DA92AA1422F005A9582 /* util.xcframework in Frameworks */,
 				08DD7D9F2AA1422E005A9582 /* hashmap.xcframework in Frameworks */,
 				08DD7DA72AA1422F005A9582 /* render_objects.xcframework in Frameworks */,
 				08DD7DAB2AA1422F005A9582 /* vec.xcframework in Frameworks */,
+				0861E64D2AA38621003CFABD /* renderer.xcframework in Frameworks */,
 				08DD7DA52AA1422F005A9582 /* o5mreader.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3053,8 +3050,6 @@
 		085DE1322AA1131C001CC9CC /* Stadsspel */ = {
 			isa = PBXGroup;
 			children = (
-				085DF5BF2AA128F1001CC9CC /* render_frontend */,
-				085DF56A2AA128DF001CC9CC /* renderer */,
 				085DE1332AA1131C001CC9CC /* AppDelegate.h */,
 				085DE1342AA1131C001CC9CC /* AppDelegate.m */,
 				085DE1362AA1131C001CC9CC /* SceneDelegate.h */,
@@ -3066,7 +3061,6 @@
 				085DE1412AA1131F001CC9CC /* LaunchScreen.storyboard */,
 				085DE1442AA1131F001CC9CC /* Info.plist */,
 				085DE1452AA1131F001CC9CC /* main.m */,
-				085DF5C12AA12A6E001CC9CC /* rendererImpl.m */,
 			);
 			path = Stadsspel;
 			sourceTree = "<group>";
@@ -4095,6 +4089,8 @@
 		085DE25F2AA11588001CC9CC /* frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				0861E64B2AA38621003CFABD /* renderer.xcframework */,
+				0861E6062AA38621003CFABD /* uirenderer.xcframework */,
 				085DE2602AA11588001CC9CC /* o5mreader.xcframework */,
 				085DE2612AA11588001CC9CC /* map_data.xcframework */,
 				085DE2622AA11588001CC9CC /* mercator.xcframework */,
@@ -10710,38 +10706,6 @@
 			path = index;
 			sourceTree = "<group>";
 		};
-		085DF56A2AA128DF001CC9CC /* renderer */ = {
-			isa = PBXGroup;
-			children = (
-				085DF56B2AA128DF001CC9CC /* map_view.c */,
-				085DF56C2AA128DF001CC9CC /* include */,
-				085DF5712AA128DF001CC9CC /* renderer.c */,
-				085DF5722AA128DF001CC9CC /* coordinate_transform.c */,
-			);
-			name = renderer;
-			path = ../../../common/renderer;
-			sourceTree = "<group>";
-		};
-		085DF56C2AA128DF001CC9CC /* include */ = {
-			isa = PBXGroup;
-			children = (
-				085DF56D2AA128DF001CC9CC /* renderer.h */,
-				085DF56E2AA128DF001CC9CC /* coordinate_transform.h */,
-				085DF56F2AA128DF001CC9CC /* colors.h */,
-				085DF5702AA128DF001CC9CC /* map_view.h */,
-			);
-			path = include;
-			sourceTree = "<group>";
-		};
-		085DF5BF2AA128F1001CC9CC /* render_frontend */ = {
-			isa = PBXGroup;
-			children = (
-				085DF5C02AA128F1001CC9CC /* renderer.h */,
-			);
-			name = render_frontend;
-			path = ../../../common/render_frontend;
-			sourceTree = "<group>";
-		};
 		085DF5C32AA131A9001CC9CC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -11411,13 +11375,9 @@
 				085DF5222AA117A5001CC9CC /* AppDelegate.h in Sources */,
 				085DF5232AA117A7001CC9CC /* AppDelegate.m in Sources */,
 				085DF5242AA117A9001CC9CC /* SceneDelegate.h in Sources */,
-				085DF5C22AA12A6E001CC9CC /* rendererImpl.m in Sources */,
-				085DF5BC2AA128E0001CC9CC /* map_view.c in Sources */,
 				085DF5252AA117AC001CC9CC /* SceneDelegate.m in Sources */,
-				085DF5BD2AA128E0001CC9CC /* renderer.c in Sources */,
 				085DF5262AA117AF001CC9CC /* ViewController.h in Sources */,
 				085DF5272AA117B1001CC9CC /* ViewController.m in Sources */,
-				085DF5BE2AA128E0001CC9CC /* coordinate_transform.c in Sources */,
 				085DF5282AA117B4001CC9CC /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

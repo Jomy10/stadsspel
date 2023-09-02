@@ -3,12 +3,14 @@
 # for the object files, compile the source code, package the
 # object files into a static library and symlink the include
 # path in the output directory
-def def_lib(name, path, include_sub_dir: "include", warn: WARN, include: [], includes_overwrite: nil)
+def def_lib(name, path, include_sub_dir: "include", warn: WARN, include: [], includes_overwrite: nil, no_include_out: false)
   cmd "build_#{name}".to_sym do
     call "build_#{name}__mkdirs".to_sym
     call "build_#{name}__source".to_sym
     call "build_#{name}__lib".to_sym
-    call "build_#{name}__include".to_sym
+    if !no_include_out
+      call "build_#{name}__include".to_sym
+    end
   end
 
   cmd "build_#{name}__mkdirs".to_sym do
@@ -33,18 +35,20 @@ def def_lib(name, path, include_sub_dir: "include", warn: WARN, include: [], inc
     sh %(#{AR} rc #{File.join(LIB_OUT, "lib#{name}.a")} #{$files})
   end
 
-  cmd "build_#{name}__include".to_sym do
-    if includes_overwrite != nil
-      includes_overwrite.each do |incl_o|
-        link_incl_path = File.join(INCLUDE_OUT, File.basename(incl_o))
-        if File.exist? (link_incl_path) then next end
-        sh %(ln -s #{File.absolute_path(File.join(path, incl_o))} #{link_incl_path})
+  if !no_include_out
+    cmd "build_#{name}__include".to_sym do
+      if includes_overwrite != nil
+        includes_overwrite.each do |incl_o|
+          link_incl_path = File.join(INCLUDE_OUT, File.basename(incl_o))
+          if File.exist? (link_incl_path) then next end
+          sh %(ln -s #{File.absolute_path(File.join(path, incl_o))} #{link_incl_path})
+        end
+        next # don't execute the default branch
       end
-      next # don't execute the default branch
-    end
 
-    include_dir = File.join(INCLUDE_OUT, name)
-    if File.exist?(include_dir) then next end
-    sh %(ln -s #{File.absolute_path(File.join(path, include_sub_dir))} #{include_dir})
+      include_dir = File.join(INCLUDE_OUT, name)
+      if File.exist?(include_dir) then next end
+      sh %(ln -s #{File.absolute_path(File.join(path, include_sub_dir))} #{include_dir})
+    end
   end
 end
