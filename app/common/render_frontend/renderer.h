@@ -16,6 +16,13 @@ typedef struct {
 typedef GPoint GSize;
 
 typedef struct {
+  int x;
+  int y;
+} GIPoint;
+
+typedef GIPoint GISize;
+
+typedef struct {
     uint8_t r, g, b, a;
 } GColor;
 
@@ -24,11 +31,11 @@ typedef struct {
     GColor color;
 } GLineOpts;
 
-void gDrawLine(Renderer, GPoint, GPoint);
-void gDrawLineO(Renderer, GPoint, GPoint, GLineOpts*);
+//void gDrawLine(Renderer, GPoint, GPoint);
+void gDrawLine(Renderer, GPoint, GPoint, GLineOpts*);
 
-void gDrawLines(Renderer, const GPoint* points, int count);
-void gDrawLinesO(Renderer, const GPoint* points, int count, GLineOpts*);
+// void gDrawLines(Renderer, const GPoint* points, int count);
+void gDrawLines(Renderer, const GPoint* points, int count, GLineOpts*);
 
 typedef struct {
     float x, y, w, h;
@@ -39,8 +46,8 @@ typedef struct {
     GLineOpts* stroke;
 } GRectOpts;
 
-void gDrawRect(Renderer, GRect);
-void gDrawRectO(Renderer, GRect, GRectOpts*);
+//void gDrawRect(Renderer, GRect);
+void gDrawRect(Renderer, GRect, GRectOpts*);
 
 void gSetStrokeColor(Renderer, GColor);
 
@@ -50,7 +57,7 @@ void gSetLineWidth(Renderer, float);
 
 void gRenderUpdate(Renderer);
 
-GSize gGetScreenSize(Renderer);
+GISize gGetScreenSize(Renderer);
 
 //typedef enum {
 //    G_ET_Click,
