@@ -7,3 +7,6 @@
 [submodule "app/deps/o5mreader"]
 	path = app/deps/o5mreader
 	url = https://github.com/jomy10/o5mreader
+[submodule "app/deps/stb"]
+	path = app/deps/stb
+	url = https://github.com/nothings/stb
