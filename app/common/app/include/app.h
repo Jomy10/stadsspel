@@ -5,19 +5,11 @@
 #include <stdbool.h>
 #include <map_data/render_objects.h>
 #include <map_data/parse.h>
-#include <renderer/coordinate_transform.h>
 
-bool init_app(MapRenderObjects* objs, struct hashmap** nodesmap) {
-  *objs = parseMapToRenderObjects("map.o5m");
-  RO_determineBoundsFromStreets(objs);
-  *nodesmap = convertNodes(objs);
+MapRenderObjects* getObjs(void);
+struct hashmap* getNodes(void);
 
-  return true;
-}
-
-void deinit_app(MapRenderObjects* objs, struct hashmap* nodesmap) {
-  destroyRenderObjects(objs);
-  hashmap_free(nodesmap);
-}
+bool initMap(FILE*);
+void deinitMap(void);
 
 #endif

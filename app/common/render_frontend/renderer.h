@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 
 typedef struct {
   void* ptr;
@@ -49,13 +50,48 @@ typedef struct {
 //void gDrawRect(Renderer, GRect);
 void gDrawRect(Renderer, GRect, GRectOpts*);
 
+typedef void* GFont;
+
+GFont gLoadFont(char* fontFile);
+GFont gLoadFontFileDescriptor(FILE*);
+void gFreeFont(GFont);
+
+typedef struct {
+  GColor fill;
+  float lineHeight;
+} GFontOpts;
+
+typedef struct {
+  void* texture; // e.g. SDL_Texture
+  int bytesPerPixel;
+  int w;
+  int h;
+  unsigned char* pixels;
+} GSurface;
+
+/// Renders a font into a surface
+void gDrawText(GSurface*, GFont, const char* text, const GFontOpts*);
+
+GSurface gCreateSurface(Renderer, int w, int h);
+void gFreeSurface(GSurface*);
+
+void gDrawSurface(Renderer, GSurface*, GPoint);
+
+/// deprecated
 void gSetStrokeColor(Renderer, GColor);
 
+/// deprecated
 void gSetFillColor(Renderer, GColor);
 
+/// deprecated
 void gSetLineWidth(Renderer, float);
 
+
 void gRenderUpdate(Renderer);
+
+void gRenderClear(Renderer);
+/// clear the screen with the specified color
+void gRenderClearColor(Renderer, GColor);
 
 GISize gGetScreenSize(Renderer);
 

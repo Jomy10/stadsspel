@@ -21,7 +21,7 @@ pub fn build(b: *std.Build) void {
                 @panic("Couldn't detect native target inifo");
             const sdk = std.zig.system.darwin.getSdk(b.allocator, target_info.target) orelse
                 @panic("Couldn't detect Apple SDK");
-            break :blk sdk.path;
+            break :blk sdk;
         },
         else => {
             @panic("Missing path to Apple SDK");
@@ -34,7 +34,7 @@ pub fn build(b: *std.Build) void {
         .ios => true, // problems linking to C standarrd library
         else => false,
     } else false);
-    build_options.addOption(bool, "nsdictionary", if (target.os_tag) |tag| switch (tag) {
+    build_options.addOption(bool, "alt_panic", if (target.os_tag) |tag| switch (tag) {
         .ios => true,
         else => false,
     } else false);

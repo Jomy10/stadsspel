@@ -21,12 +21,15 @@ struct ViewState {
       int count;
     } buttons;
     struct NavView* currentNavView;
+    float zoom;
   } _navView;
   bool shouldRender;
+  /// For HDPI
+  float scale;
 };
 
 void setView(enum View view);
 
-void renderApp(Renderer ren, MapRenderObjects* objs, struct hashmap* mapnodes, GRect screenBound);
+void renderApp(Renderer ren, GRect screenBound);
 
 #endif

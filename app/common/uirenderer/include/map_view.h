@@ -5,6 +5,6 @@
 #include <renderer/renderer.h>
 #include <hashmap.h>
 
-void renderMapView(Renderer gRenderer, int renX, int renY, int renW, int renH, const MapRenderObjects* objs, const struct hashmap* mapnodes);
+void renderMapView(Renderer gRenderer, int renX, int renY, int renW, int renH, float zoom, const MapRenderObjects* objs, const struct hashmap* mapnodes);
 
 #endif

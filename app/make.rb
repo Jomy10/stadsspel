@@ -8,6 +8,8 @@ require_relative 'build-util/make_xcframework.rb'
 # TODO: in beaver, add option for $beaver.no_color = true -> doesn't output grey
 require_relative 'build-util/xcode.rb'
 
+$beaver.set(:e)
+
 # TODO: in beaver, add BUILD_OPTION, which will cache separately
 # it will keep cache for each confiiguation of build optons and rebuild
 # when those options are passed in and the files in their cache has changed
@@ -72,6 +74,7 @@ def_lib("vec", "common/vec", include: [INCLUDE_OUT])
 def_lib("uirenderer", "common/uirenderer", include: [INCLUDE_OUT])
 require_relative "common/render_backends/make.rb"
 require_relative "macOS/make.rb"
+def_lib("app", "common/app", include: [INCLUDE_OUT]);
 
 # Dependencies
 def_lib("mercator", "deps/mercator", include_sub_dir: "", includes_overwrite: ["mercator.h"])
@@ -81,6 +84,11 @@ def_lib("o5mreader", "deps/o5mreader/src", include_sub_dir: "", warn: "-Wno-ever
 cmd :build_copy_sdl_include do
   include_dir = File.join(INCLUDE_OUT, "SDL3")
   if !File.exist?(include_dir) then sh %(ln -s #{File.absolute_path(File.join("deps", "SDL", "include"))} #{include_dir}) end
+end
+
+cmd :build_copy_stb_include do
+  include_dir = File.join(INCLUDE_OUT, "stb")
+  if !File.exist?(include_dir) then sh %(ln -s #{File.absolute_path(File.join("deps", "stb"))} #{include_dir}) end
 end
 
 require_relative "tests/make.rb"
@@ -95,6 +103,7 @@ def_xcframework("util")
 def_xcframework("vec")
 def_xcframework("renderer")
 def_xcframework("uirenderer")
+def_xcframework("app");
 #== End Define build steps ==#
 
 #== commands ==#
@@ -113,6 +122,8 @@ cmd :build do
     :map_data => :build_map_data,
     :renderer_frontend => :build_renderer_frontend,
     :sdl => :build_copy_sdl_include,
+    :stb => :build_copy_stb_include,
+    :app => :build_app,
     :renderer => :build_renderer,
     :uirenderer => :build_uirenderer,
   }
@@ -127,6 +138,15 @@ cmd :build do
   end
 
   # Execute commands
+
+  # first copy all includes
+  cmds_to_execute.each do |c|
+    c_include = (c.to_s + "__include").to_sym
+    if $beaver.command_exists? c_include
+      call c_include
+    end
+  end
+
   if (force)
     cmds_to_execute.each do |c|
       #if (c == :build_renderer && PLATFORM =~ /ios.*/) then next end
@@ -164,7 +184,7 @@ cmd :build_xcframeworks do
   [
     "o5mreader", "hashmap", "map_data",
     "mercator", "render_objects", "util",
-    "vec", "renderer", "uirenderer"
+    "vec", "renderer", "uirenderer", "app"
   ]
     .each { |n|
       puts "building framework #{n}".blue

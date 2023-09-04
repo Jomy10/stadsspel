@@ -6,6 +6,10 @@
 #include <map_data/parse.h>
 #include <uirenderer/coordinate_transform.h>
 #include <SDL3/SDL.h>
+#include <app/app.h>
+#include <time.h>
+
+extern struct ViewState viewState;
 
 bool init(SDL_Window** gWindow, SDL_Renderer** gRenderer) {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -17,8 +21,10 @@ bool init(SDL_Window** gWindow, SDL_Renderer** gRenderer) {
     SDL_LogWarn(0, "Linearr texture filtering not enabled!\n");
   }
 
-  *gWindow = SDL_CreateWindow("Stadsspel", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 320, 240, SDL_WINDOW_SHOWN);
+  int w = 320, h = 240;
+  *gWindow = SDL_CreateWindow("Stadsspel", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_METAL);
   if (*gWindow == null) {
+
     SDL_LogError(0, "Window could not be created: %s\n", SDL_GetError());
     return false;
   }
@@ -28,14 +34,16 @@ bool init(SDL_Window** gWindow, SDL_Renderer** gRenderer) {
     SDL_LogError(0, "Renderer could not be created: %s\n", SDL_GetError());
     return false;
   }
+  int rw, rh;
+  if (SDL_GetRendererOutputSize(*gRenderer, &rw, &rh) != 0) {
+    SDL_LogWarn(0, "%s\n", SDL_GetError());
+    return true;
+  }
+  viewState.scale = (float) rh / (float) h; // TODO: warn if scaleX != scaleY
 
   return true;
 }
 
-extern struct ViewState viewState;
-
-extern MapRenderObjects* __objs;
-extern struct hashmap* __mapnodes;
 static SDL_Renderer* __ren;
 
 int navClicked(const SDL_MouseButtonEvent* e) {
@@ -43,16 +51,19 @@ int navClicked(const SDL_MouseButtonEvent* e) {
   if (SDL_GetRendererOutputSize(__ren, &w, &h) != 0) {
     printf("%s\n", SDL_GetError());
   }
-  int navHeight = h / 7;
+  printf("renderer: %i %i - %i %i\n", w, h, e->x, e->y);
+  float navHeight = (float) h / 7;
   float navWidth = (float) w / viewState._navView.buttons.count;
   float navY = h - navHeight;
+  int mouseY = e->y * viewState.scale;
+  int mouseX = e->x * viewState.scale;
+  printf("mouse: %d %d\n", mouseX, mouseY);
 
-  printf("screen = (%i, %i), nav = (%f, max:%i)\n", w, h, navY, h);
-  if (e->y >= navY && e->y <= h) {
-    printf("Clicked inside of nav\n");
+  if (mouseY >= navY && mouseY <= h) {
     // Clicked inside of navigation buttons
     for (int i = 0; i < viewState._navView.buttons.count; i++) {
-      if (e->x >= i * navWidth && e->x <= navWidth + i * navWidth) {
+      printf("nav: %f  %f\n", navWidth, navHeight);
+      if (mouseX >= i * navWidth && mouseX <= navWidth + i * navWidth) {
         return i;
       }
     }
@@ -70,7 +81,6 @@ void handleEvent(const SDL_Event* e, bool* quit, bool* shouldRender) {
       if (e->button.button == SDL_BUTTON_LEFT) {
         if (viewState._navView.active) {
           int selectedNavElement = navClicked(&e->button);
-          printf("%i\n", selectedNavElement);
           if (selectedNavElement == -1) break;
           viewState._navView.currentNavView->currentView = selectedNavElement;
           *shouldRender = true;
@@ -78,21 +88,26 @@ void handleEvent(const SDL_Event* e, bool* quit, bool* shouldRender) {
       }
       return;
     case SDL_WINDOWEVENT_RESIZED:
-      viewState.shouldRender = true;
+      *shouldRender = true;
+      return;
+    case SDL_KEYDOWN:
+      switch (e->key.keysym.scancode) {
+        case SDLK_PLUS:
+          viewState._navView.zoom += 0.1;
+          break;
+        case SDLK_MINUS:
+          viewState._navView.zoom -= 0.1;
+          break;
+        default: break;
+      }
       return;
   }
 }
 
 int main() {
   FILE* f = fopen("map.o5m", "rb");
-
-  MapRenderObjects objs = parseMapFileDescriptorToRenderObjects(f);
+  initMap(f);
   fclose(f);
-  RO_determineBoundsFromStreets(&objs);
-  printObjsSummary(&objs);
-  struct hashmap* mapnodes = convertNodes(&objs);
-  __objs = &objs;
-  __mapnodes = mapnodes;
 
   SDL_Window* win = NULL;
   SDL_Renderer* ren = NULL;
@@ -118,14 +133,15 @@ int main() {
     if (viewState.shouldRender) {
       GISize s = gGetScreenSize(renderer);
       GRect appBounds = (GRect){0, 0, s.x, s.y};
-      renderApp(renderer, &objs, mapnodes, appBounds);
+      renderApp(renderer, appBounds);
       viewState.shouldRender = false;
     }
+    struct timespec ts = {0, 1000};
+    nanosleep(&ts, &ts);
   }
 
   SDL_DestroyRenderer(ren);
   SDL_DestroyWindow(win);
-  destroyRenderObjects(&objs);
-  hashmap_free(mapnodes);
+  deinitMap();
   SDL_Quit();
 }

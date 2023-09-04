@@ -1,14 +1,8 @@
 const std = @import("std");
 const hashmap_pkg = @import("hashmap");
 const HashMap = hashmap_pkg.HashMap;
-// const StringHashMap = hashmap_pkg.StringHashMap;
 const Allocator = std.mem.Allocator;
-// const ArrayList = std.ArrayList;
-// const AutoHashMap = std.AutoHashMap;
-// const ArrayHashMap = std.AutoArrayHashMap;
 const StringHashMap = std.StringHashMap;
-// const builtin = @import("builtin");
-// const DEBUG: bool = builtin.mode == std.builtin.OptimizeMode.Debug;
 const build_options = @import("build_options");
 
 const string = switch (build_options.no_cstd_import) {
@@ -81,12 +75,10 @@ export fn makeRenderObjects() CMapRenderObjects {
         return CMapRenderObjects{ .ptr = null };
     };
     var cobjs = CMapRenderObjects{
-        // .ptr = stdlib.malloc(@sizeOf(MapRenderObjects)).?,
-        .ptr = ptr, //@as(*anyopaque, @ptrCast(@alignCast(ptr))),
+        .ptr = ptr,
     };
     @as(*MapRenderObjects, @ptrCast(@alignCast(cobjs.ptr.?))).* = MapRenderObjects.init(std.heap.page_allocator) catch |err| {
         std.debug.print("{}\n", .{err});
-        // stdlib.free(cobjs.ptr);
         std.heap.c_allocator.destroy(@as(*MapRenderObjects, @ptrCast(@alignCast(cobjs.ptr.?))));
         cobjs.ptr = null;
         return cobjs;
@@ -97,7 +89,6 @@ export fn makeRenderObjects() CMapRenderObjects {
 export fn destroyRenderObjects(self: *CMapRenderObjects) void {
     var ptr = @as(*MapRenderObjects, @ptrCast(@alignCast(self.ptr)));
     ptr.*.deinit();
-    // stdlib.free(self.ptr);
     std.heap.c_allocator.destroy(ptr);
 }
 
@@ -226,25 +217,8 @@ pub const MapRenderObjects = struct {
     }
 
     fn addRenderObjectWay(self: *MapRenderObjects, way: *Way) void {
-        // std.debug.print("Tags count = {}\n", .{way.tags.count()});
-        // var keyiter = way.tags.keyIterator();
-        // std.debug.print("Tags = {{", .{});
-        // var key: ?*[]const u8 = keyiter.next();
-        // while (key != null) : (key = keyiter.next()) {
-        //     std.debug.print("{}- {s}, ", .{ key, key.?.* });
-        // }
-        // std.debug.print("}}\n", .{});
-        // var keys = way.tags.keys(std.heap.c_allocator) catch |err| {
-        //     std.debug.print("{}\n", .{err});
-        //     return;
-        // };
-        // defer keys.deinit();
-        // std.debug.print("Tags: {s}\n", .{keys.items});
         const highway: ?[]const u8 = way.tags.get("highway");
-        // std.debug.print("Highway = {?s}\n", .{highway});
-        // const nodes = self.allocator.alloc(u64, way.nodes.items.size) catch |err| {
         if (highway != null) {
-            // std.debug.print("Highway: {s}\n", .{highway.?});
             const nodes: []u64 = self.allocator.dupe(u64, way.nodes.items[0..way.nodes.len]) catch |err| {
                 std.debug.print("Couldn't allocate nodes array for street: {}\n", .{err});
                 return;
@@ -275,7 +249,6 @@ export fn printObjsSummary(cobjs: *CMapRenderObjects) void {
 export fn printObjs(cobjs: *CMapRenderObjects) void {
     var objs: *MapRenderObjects = @ptrCast(@alignCast(cobjs.ptr.?));
     std.debug.print("RenderObjects: streetscount={}, nodescount={} \n  Bounds={}\n", .{ objs.streets.len, objs.nodes.len(), objs.bounds });
-    // for (objs.streets.items) |street| {
     var i: u32 = 0;
     while (i < objs.streets.len) : (i += 1) {
         std.debug.print("  Street: {}\n", .{objs.streets.items[i]});
@@ -286,20 +259,16 @@ const WAY_TAGS_CAP = 50;
 const Way = struct {
     id: u64,
     nodes: Vec(u64),
-    // Tag: string -> string
-    //tags: StringHashMap([]const u8, WAY_TAGS_CAP),
     tags: StringHashMap([]const u8),
     allocator: Allocator,
     arena: std.heap.ArenaAllocator,
 };
 
 export fn initWay() ?*anyopaque {
-    // var cway: *anyopaque = stdlib.malloc(@sizeOf(Way)).?;
     var way_ptr = std.heap.c_allocator.create(Way) catch |err| {
         std.debug.print("{}\n", .{err});
         return null;
     };
-    // var cway: *anyopaque = @as(*anyopaque, @ptrCast(@alignCast(way_ptr)));
     var cway: *anyopaque = way_ptr;
     var way: *Way = @ptrCast(@alignCast(cway));
     way.arena = std.heap.ArenaAllocator.init(std.heap.c_allocator);
@@ -317,7 +286,6 @@ export fn freeWay(cway: *anyopaque) void {
     way.arena.deinit();
     way.tags.deinit();
     way.nodes.deinit();
-    // stdlib.free(cway);
     std.heap.c_allocator.destroy(way);
 }
 
@@ -350,8 +318,6 @@ export fn way_addTag(cway: *anyopaque, key: [*c]const u8, val: [*c]const u8) voi
 
     @memcpy(k, @as([*]const u8, @ptrCast(key)));
     @memcpy(v, @as([*]const u8, @ptrCast(val)));
-
-    // std.debug.print("Allocated key {s} with length {}", .{ k, string.strlen(key) });
 
     way.tags.put(k, v) catch |err| {
         std.debug.print("Couldn't put tag: {}\n", .{err});

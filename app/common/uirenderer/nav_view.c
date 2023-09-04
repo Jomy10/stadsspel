@@ -14,6 +14,11 @@ void renderNavView(Renderer gRendenderer, int renX, int renY, int renW, int renH
   assert(elements != null);
   assert(elements->elementsSize == 0 || elements->elements != null);
 
+  elements->elements[elements->currentView].renderContent(gRendenderer,
+    renX, renY,
+    renW, renH - navHeight
+  );
+
   for (int i = 0; i < elements->elementsSize; i++) {
     elements->elements[i].renderElement(
       gRendenderer,
@@ -23,9 +28,4 @@ void renderNavView(Renderer gRendenderer, int renX, int renY, int renW, int renH
       navHeight
     );
   }
-
-  elements->elements[elements->currentView].renderContent(gRendenderer,
-    renX, renY,
-    renW, renH - navHeight
-  );
 }

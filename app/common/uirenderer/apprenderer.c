@@ -4,6 +4,9 @@
 #include <renderer/renderer.h>
 #include <map_data/render_objects.h>
 #include <nav_elements.h>
+#include <stdbool.h>
+
+#include <stdio.h>
 
 struct ViewState viewState = (struct ViewState) {
   .currentView = VIEW_MAIN,
@@ -25,10 +28,10 @@ struct ViewState viewState = (struct ViewState) {
   },
   ._navView = {
     .active = true,
+    .zoom = 1
   },
+  .scale = 1
 };
-
-void renderMain(Renderer ren, GRect screenBounds);
 
 void setView(enum View view) {
   switch (view) {
@@ -36,13 +39,15 @@ void setView(enum View view) {
       viewState._navView.active = true;
       viewState._navView.buttons.count = viewState.mainView.navView.elementsSize;
       viewState._navView.currentNavView = &viewState.mainView.navView;
+      break;
   }
 }
 
-void renderApp(Renderer ren, MapRenderObjects* objs, struct hashmap* mapnodes, GRect screenBounds) {
+void renderMain(Renderer ren, GRect screenBounds);
+void renderApp(Renderer ren,/* MapRenderObjects* objs, struct hashmap* mapnodes,*/ GRect screenBounds) {
+  printf("Rerendering app\n");
 
-  //renderMapView(ren, screenBounds.x, screenBounds.y, screenBounds.w, screenBounds.h, objs, mapnodes);
-  //renderNavView(ren, screenBounds.x, screenBounds.y, screenBounds.w, screenBounds.h, &(struct NavView){ .elementsSize = 4 });
+  gRenderClearColor(ren, (GColor){0,0,0,255});
 
   switch (viewState.currentView) {
     case VIEW_MAIN:
@@ -52,9 +57,6 @@ void renderApp(Renderer ren, MapRenderObjects* objs, struct hashmap* mapnodes, G
 
   gRenderUpdate(ren);
 }
-
-__attribute__((unused)) MapRenderObjects* __objs;
-__attribute__((unused)) struct hashmap* __mapnodes;
 
 void renderMain(Renderer ren, GRect screenBounds) {
   renderNavView(ren, screenBounds.x, screenBounds.y, screenBounds.w, screenBounds.h, &viewState.mainView.navView);
