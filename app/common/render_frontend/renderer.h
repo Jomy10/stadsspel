@@ -62,7 +62,7 @@ typedef struct {
 } GFontOpts;
 
 typedef struct {
-  void* texture; // e.g. SDL_Texture
+  void* texture;
   int bytesPerPixel;
   int w;
   int h;

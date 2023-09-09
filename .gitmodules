@@ -10,3 +10,18 @@
 [submodule "app/deps/stb"]
 	path = app/deps/stb
 	url = https://github.com/nothings/stb
+[submodule "app/deps/cairo"]
+	path = app/deps/cairo
+	url = git://anongit.freedesktop.org/git/cairo
+[submodule "app/deps/pixman"]
+	path = app/deps/pixman
+	url = git://anongit.freedesktop.org/git/pixman.git
+[submodule "app/deps/cairo-ios"]
+	path = app/deps/cairo-ios
+	url = https://github.com/yoshikiohshima/cairo-1.15.2-iOS
+[submodule "app/deps/pixman-ios"]
+	path = app/deps/pixman-ios
+	url = https://github.com/yoshikiohshima/pixman-0.34.0-iOS
+[submodule "app/deps/olive.c"]
+	path = app/deps/olive.c
+	url = https://github.com/tsoding/olive.c

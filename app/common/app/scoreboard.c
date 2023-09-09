@@ -1,4 +1,4 @@
-#include <scoreboard.h>
+#include "include/scoreboard.h"
 
 static struct Scoreboard scoreboard = (struct Scoreboard) {
   .teamCount = 3,
@@ -8,6 +8,6 @@ static struct Scoreboard scoreboard = (struct Scoreboard) {
     (struct Team){.name = "ghi"},
   },
 };
-struct Scoreboard* getScoreboard() {
+struct Scoreboard* getScoreboard(void) {
   return &scoreboard;
 }

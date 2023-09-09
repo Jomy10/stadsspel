@@ -10,6 +10,7 @@ extra_flags = ""
 case PLATFORM
 when 'ios', 'iossim'
   backend_files = Dir[File.join(backends_path, "CoreGraphics", "*")]
+  backend_files.push(*Dir[File.join(backends_path, "common", "truetype", "*.c")])
   extra_flags << "-fmodules -fobjc-arc"
 else
   backend_files = Dir[File.join(backends_path, "SDL", "*.c")]

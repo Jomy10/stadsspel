@@ -8,13 +8,13 @@ struct VecA {
     int size;
     int cap;
     int type_size;
-    Allocator allocator;
+    Allocator* allocator;
 };
 
 #define VecA(T) struct VecA*
 
 #define createVecA(T, cap, allocator) createVecAM((cap), sizeof(T), (allocator))
-struct VecA* createVecAM(int cap, int type_size, Allocator a);
+struct VecA* createVecAM(int cap, int type_size, Allocator* a);
 
 void veca_free(struct VecA* veca);
 

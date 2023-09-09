@@ -21,7 +21,7 @@ PLATFORM=ENV['PLATFORM']||'macos'
 PLATFORM_FLAGS=get_platform_flags(PLATFORM)
 ZIG_PLATFORM_FLAGS=get_platform_zig_flags(PLATFORM)
 
-valid_platforms = ["macos", "ios", "iossim", "android"]
+valid_platforms = ["macos", "ios", "iossim", "iossimarm", "android"]
 if !(valid_platforms.include? PLATFORM)
   puts "Invalid platform, valid platforms are #{valid_platforms}"
   exit -1;
@@ -48,6 +48,7 @@ case (OPT.upcase)
 when 'DEBUG'
   CFLAGS << " -g -O0"
 when 'RELEASE'
+  # https://stackoverflow.com/a/15548189/14874405
   CFLAGS << " -O3"
 end
 
@@ -62,24 +63,33 @@ ZIG_CACHE=File.join(ZIG_BASE, "cache")
 ZIG_LIB=File.join(ZIG_OUT, "lib")
 FRAMEWORK_OUT=File.join(OUT_BASE, "frameworks")
 
-force=(!File.exist?(OUT)) ? true : (ARGV.size >= 3 && ARGV[2] == '-f' || ARGV.size >= 2 && ARGV[1] == '-f')
+# Temporary fix
+force=(!File.exist?(OUT)) ?
+  true :
+  (File.exist?(File.join($beaver.cache_loc, "platform.txt")) ? File.read(File.join($beaver.cache_loc, "platform.txt")) == PLATFORM : true) ?
+    (ARGV.size >= 3 && ARGV[2] == '-f' || ARGV.size >= 2 && ARGV[1] == '-f') :
+    true
 
-# TODO: Caching last used platform
+# TODO: test if works!
+# $beaver.cache_loc = File.join(OUT_BASE, ".beaver")
 
 #== Define build steps ==#
 require_relative "common/zig_build.rb"
 def_lib("map_data", "common/map_data/src", include: [INCLUDE_OUT])
 def_lib("util", "common/util", include: [INCLUDE_OUT])
 def_lib("vec", "common/vec", include: [INCLUDE_OUT])
-def_lib("uirenderer", "common/uirenderer", include: [INCLUDE_OUT])
-require_relative "common/render_backends/make.rb"
+# def_lib("uirenderer", "common/uirenderer", include: [INCLUDE_OUT])
+# require_relative "common/render_backends/make.rb"
 require_relative "macOS/make.rb"
 def_lib("app", "common/app", include: [INCLUDE_OUT]);
+def_lib("ui", "common/ui", include: [INCLUDE_OUT])
+def_lib("arena", "common/arena", include: [INCLUDE_OUT])
 
 # Dependencies
 def_lib("mercator", "deps/mercator", include_sub_dir: "", includes_overwrite: ["mercator.h"])
 def_lib("hashmap", "deps/hashmap.c", include_sub_dir: "", includes_overwrite: ["hashmap.h"])
 def_lib("o5mreader", "deps/o5mreader/src", include_sub_dir: "", warn: "-Wno-everything", includes_overwrite: ["o5mreader.h"])
+require_relative "deps/cairo_build.rb"
 
 cmd :build_copy_sdl_include do
   include_dir = File.join(INCLUDE_OUT, "SDL3")
@@ -89,6 +99,11 @@ end
 cmd :build_copy_stb_include do
   include_dir = File.join(INCLUDE_OUT, "stb")
   if !File.exist?(include_dir) then sh %(ln -s #{File.absolute_path(File.join("deps", "stb"))} #{include_dir}) end
+end
+
+cmd :build_copy_olive_include do
+  include_dir = File.join(INCLUDE_OUT, "olive.c")
+  if !File.exist?(include_dir) then sh %(ln -s #{File.absolute_path(File.join("deps", "olive.c", "olive.c"))} #{include_dir}) end
 end
 
 require_relative "tests/make.rb"
@@ -101,9 +116,13 @@ def_xcframework("render_objects", File.join(INCLUDE_OUT, "map_data/render_object
 def_xcframework("mercator", File.join(INCLUDE_OUT, "mercator.h"), copy_headers: true)
 def_xcframework("util")
 def_xcframework("vec")
-def_xcframework("renderer")
-def_xcframework("uirenderer")
-def_xcframework("app");
+# def_xcframework("renderer")
+# def_xcframework("uirenderer")
+# def_xcframework("app");
+def_xcframework("cairo", if PLATFORM =~ /ios.*/ then [File.join("deps", "cairo-ios", "cairo-version.h"), *Dir[File.join("deps", "cairo-ios", "cairo", "*.h")]] else File.join(INCLUDE_OUT, "cairo") end, copy_headers: true);
+def_xcframework("pixman")
+# def_xcframework("ui")
+def_xcframework("arena")
 #== End Define build steps ==#
 
 #== commands ==#
@@ -115,17 +134,16 @@ cmd :build do
     :hashmap => :build_hashmap,
     :o5mreader => :build_o5mreader,
     :zig_all => :build_zig_all,
-    # :arena => :build_arena,
     :mercator => :build_mercator,
     :util => :build_util,
     :vec => :build_vec,
     :map_data => :build_map_data,
-    :renderer_frontend => :build_renderer_frontend,
     :sdl => :build_copy_sdl_include,
     :stb => :build_copy_stb_include,
     :app => :build_app,
-    :renderer => :build_renderer,
-    :uirenderer => :build_uirenderer,
+    :olive => :build_copy_olive_include,
+    :ui => :build_ui,
+    :arena => :build_arena,
   }
   # Determine commands to run
   if ((ARGV.size < 2) || (ARGV[1].to_sym == :all))
@@ -184,7 +202,7 @@ cmd :build_xcframeworks do
   [
     "o5mreader", "hashmap", "map_data",
     "mercator", "render_objects", "util",
-    "vec", "renderer", "uirenderer", "app"
+    "vec", "arena"
   ]
     .each { |n|
       puts "building framework #{n}".blue
@@ -212,3 +230,13 @@ end
 $beaver.set_main :build
 
 $beaver.end
+
+pfile = File.join($beaver.cache_loc, "platform.txt")
+if File.exist?($beaver.cache_loc)
+  if !File.exist?(pfile)
+    FileUtils.touch(pfile)
+  end
+  File.open(pfile, 'w') do |f|
+    f.write(PLATFORM)
+  end
+end

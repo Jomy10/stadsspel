@@ -1,13 +1,13 @@
 #include <allocator.h>
 
-Allocator createAllocator(
+Allocator* createAllocator(
   void* a,
   void*(*alloc)(void*, size_t),
   void*(*realloc)(void*, void*, size_t),
   void (*free)(void*, void*),
   void (*destroy)(void*)
 ) {
-  Allocator al = malloc(sizeof(Allocator));
+  Allocator* al = malloc(sizeof(Allocator));
   *al = (struct _Allocator){
     .allocator = a,
     .alloc = alloc,
@@ -18,7 +18,7 @@ Allocator createAllocator(
   return al;
 }
 
-void freeAllocator(Allocator al) {
+void freeAllocator(Allocator* al) {
   if (al->destroy_allocator != NULL) {
     al->destroy_allocator(al->allocator);
   }
@@ -42,8 +42,8 @@ static inline void calloc_free(__attribute__((unused)) void* _a, void* ptr) {
 
 static inline void calloc_destroy(__attribute__((unused)) void* _a) {}
 
-Allocator create_Callocator() {
-  Allocator al = malloc(sizeof(Allocator));
+Allocator* create_Callocator() {
+  Allocator* al = malloc(sizeof(Allocator));
   *al = (struct _Allocator){
     .allocator = NULL,
     .alloc = calloc_malloc,

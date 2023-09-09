@@ -87,45 +87,64 @@ void gDrawRect(Renderer ren, GRect rect, GRectOpts* _opts) {
     shape.path = path.CGPath;
     shape.fillColor = gCol(opts.fill);
     if (opts.stroke != nil) {
-        shape.strokeColor = gCol(opts.stroke->color);
-        shape.lineWidth = (CGFloat)opts.stroke->width;
+      shape.strokeColor = gCol(opts.stroke->color);
+      shape.lineWidth = (CGFloat)opts.stroke->width;
     }
 
     [base addSublayer:shape];
 }
 
-void gDrawText(GSurface* surface, GFont font, const char* text, const GFontOpts* opts) {
-  CATextLayer* layer = [[CATextLayer alloc] init];
-  [layer setFont:font];
-  [layer setFontSize:opts->lineHeight];
-  [layer setFrame:[((__bridge CALayer*)surface->texture) frame]];
-  [layer setString:[NSString stringWithUTF8String:text]];
-  [layer setAlignmentMode:kCAAlignmentLeft];
-  [layer setForegroundColor:CGColorCreateGenericRGB(opts->fill.r, opts->fill.g, opts->fill.b, opts->fill.a)];
-  [((__bridge CALayer*)surface->texture) addSublayer:layer];
-}
+// Text implementation in common/truetype
+// void gDrawText(GSurface* surface, GFont font, const char* text, const GFontOpts* opts) {
+//   CATextLayer* layer = [[CATextLayer alloc] init];
+//   [layer setFont:font];
+//   [layer setFontSize:opts->lineHeight];
+//   [layer setFrame:[((__bridge CALayer*)surface->texture) frame]];
+//   [layer setString:[NSString stringWithUTF8String:text]];
+//   [layer setAlignmentMode:kCAAlignmentLeft];
+//   [layer setForegroundColor:gCol(opts->fill)];
+//   [((__bridge CALayer*)surface->texture) addSublayer:layer];
+// }
 
 GSurface gCreateSurface(__attribute__((unused)) Renderer ren, int w, int h) {
   CALayer* layer = [[CALayer alloc] init];
+  [layer setFrame:CGRectMake(0, 0, w, h)];
   layer.bounds = CGRectMake(0, 0, w, h);
   layer.masksToBounds = true;
   return (GSurface) {
     .texture = (__bridge void*) layer,
     .w = w, .h = h,
-    .pixels = nil,
+    .pixels = calloc(w * h, sizeof(unsigned char)),
+    .bytesPerPixel = sizeof(unsigned char),
   };
 }
 
-void gFreeSurface(__unused GSurface* surface) {
-  //[((__bridge CALayer*) surface->texture) dealloc];
-}
+void gFreeSurface(__unused GSurface* surface) {}
 
 void gDrawSurface(Renderer ren, GSurface* surface, GPoint pos) {
   CALayer* base = (__bridge CALayer*) ren.ptr;
 
-  ((__bridge CALayer*)surface).position = (CGPoint){(CGFloat)pos.x, (CGFloat)pos.y};
+  CFDataRef imgData = CFDataCreate(kCFAllocatorDefault, surface->pixels, surface->w * surface->h * surface->bytesPerPixel);
+  assert(imgData != nil);
+  CGDataProviderRef imgDataProvider = CGDataProviderCreateWithCFData(imgData);
+  assert(imgDataProvider != nil);
 
-  [base addSublayer:(__bridge CALayer*)surface];
+  CGImageRef img = CGImageCreate(
+    surface->w, surface->h, 8, 8, surface->w,
+    CGColorSpaceCreateCalibratedGray((CGFloat[]){0,0,0}, (CGFloat[]){100,100,100}, 1.8),
+    kCGBitmapByteOrderDefault,
+    imgDataProvider,
+    nil,
+    true, // shouldInterpolate
+    kCGRenderingIntentDefault
+  );
+
+  ((__bridge CALayer*)surface->texture).position = (CGPoint){(CGFloat)pos.x, (CGFloat)pos.y};
+
+  [(__bridge CALayer*)surface->texture setNeedsDisplay];
+  ((__bridge CALayer*)surface->texture).contents = (__bridge id _Nullable)img;
+
+  [base addSublayer:((__bridge CALayer*)surface->texture)];
 }
 
 void gSetStrokeColor(__attribute__((unused)) Renderer _, GColor col) {
@@ -141,14 +160,14 @@ void gSetLineWidth(__attribute__((unused)) Renderer _, float lw) {
 }
 
 void gRenderUpdate(Renderer ren) {
-    CALayer* base = (__bridge CALayer*) ren.ptr;
-    [base setNeedsDisplay];
+  CALayer* base = (__bridge CALayer*) ren.ptr;
+  [base setNeedsDisplay];
 }
 
 GISize gGetScreenSize(Renderer ren) {
-    CALayer* base = (__bridge CALayer*) ren.ptr;
-    CGRect bounds = base.bounds;
-    return (GISize){(int)bounds.size.width, (int)bounds.size.height};
+  CALayer* base = (__bridge CALayer*) ren.ptr;
+  CGRect bounds = base.bounds;
+  return (GISize){(int)bounds.size.width, (int)bounds.size.height};
 }
 
 void gRenderClear(Renderer ren) {
@@ -160,7 +179,7 @@ void gRenderClearColor(Renderer ren, GColor col) {
   CALayer* base = (__bridge CALayer*) ren.ptr;
   //[base.sublayers makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
   while (base.sublayers.count > 0) {
-    [base.sublayers[base.sublayers.count - 1] removeFromSuperLayer];
+    [base.sublayers[base.sublayers.count - 1] removeFromSuperlayer];
   }
   base.backgroundColor = gCol(col);
 }

@@ -3,7 +3,7 @@
 #include <string.h>
 #include <util/allocator.h>
 
-struct VecA* createVecAM(int cap, int type_size, Allocator a) {
+struct VecA* createVecAM(int cap, int type_size, Allocator* a) {
   //void* mem = a->alloc(a->allocator, sizeof(struct VecA) + type_size * cap);
   struct VecA* v = a->alloc(a->allocator, sizeof(struct VecA));
   if (cap > 0) {
@@ -15,6 +15,7 @@ struct VecA* createVecAM(int cap, int type_size, Allocator a) {
   v->size = 0;
   v->cap = cap;
   v->type_size = type_size;
+  v->allocator = a;
   return v;
 }
 
@@ -27,8 +28,13 @@ void veca_append(struct VecA* vec, void* value) {
   assert(vec->type_size != 0);
 
   if (vec->size == vec->cap) {
-    vec->cap *= 2;
-    vec->values = (char*) vec->allocator->realloc(vec->allocator->allocator, vec->values, vec->cap * vec->type_size);
+    if (vec->cap == 0) {
+      vec->cap = 10;
+      vec->values = (char*) vec->allocator->alloc(vec->allocator->allocator, vec->cap * vec->type_size);
+    } else {
+      vec->cap *= 2;
+      vec->values = (char*) vec->allocator->realloc(vec->allocator->allocator, vec->values, vec->cap * vec->type_size);
+    }
   }
   memcpy(&((char*)vec->values)[(vec->size++) * vec->type_size], value, vec->type_size);
 }

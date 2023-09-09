@@ -9,7 +9,7 @@
 MapRenderObjects* getObjs(void);
 struct hashmap* getNodes(void);
 
-bool initMap(FILE*);
-void deinitMap(void);
+bool initMap(FILE*, MapRenderObjects*, struct hashmap**);
+void deinitMap(MapRenderObjects*, struct hashmap*);
 
 #endif

@@ -11,9 +11,9 @@ struct _Allocator {
     void (*destroy_allocator)(void*);
 };
 
-typedef struct _Allocator* Allocator;
+typedef struct _Allocator Allocator;
 
-Allocator createAllocator(
+Allocator* createAllocator(
   void*,
   void*(*)(void*, size_t),
   void*(*)(void*, void*, size_t),
@@ -21,14 +21,14 @@ Allocator createAllocator(
   void (*)(void*)
 );
 
-#define allocator_alloc(_allocator, bytes) (_allocator)->alloc((_allocator)->allocator, bytes)
-#define allocator_realloc(_allocator, ptr, bytes) (_allocator)->realloc((_allocator)->allocator, ptr, bytes)
-#define allocator_free(_allocator, ptr) (_allocator)->free((_allocator)->allocator, ptr)
+#define al_alloc(_allocator, bytes) (_allocator)->alloc((_allocator)->allocator, bytes)
+#define al_realloc(_allocator, ptr, bytes) (_allocator)->realloc((_allocator)->allocator, ptr, bytes)
+#define al_free(_allocator, ptr) (_allocator)->free((_allocator)->allocator, ptr)
 
 /// frees the whole allocator
-void freeAllocator(Allocator);
+void freeAllocator(Allocator*);
 
 /// Default C allocator
-Allocator create_callocator();
+Allocator* create_callocator();
 
 #endif

@@ -17,6 +17,11 @@ def get_platform_flags(platform)
         "-isysroot #{sdk_root} "
         # "-syslibroot #{sdk_root} "
         #"-Fdeps/SDL/XCode/SDL/"
+    # when 'iossimarm'
+    #   sdk_root = `xcrun --sdk iphonesimulator --show-sdk-path`.gsub("\n", "")
+    #   return "-arch arm64 " +
+    #     "-isysroot #{sdk_root} " +
+    #     "-mios-version-min=#{IOS_VERSION}"
     when 'ios'
       sdk_root = `xcrun --sdk iphoneos --show-sdk-path`.gsub("\n", "")
       return "-arch arm64 " +
@@ -34,6 +39,8 @@ def get_platform_zig_flags(platform)
     when 'iossim'
     #return "-Dtarget=x86_64-ios-simulator --sysroot #{`xcrun --sdk iphonesimulator --show-sdk-path`.gsub("\n", "")} "
       return "-Dtarget=native-ios-simulator --sysroot #{`xcrun --sdk iphonesimulator --show-sdk-path`.gsub("\n", "")}"
+    # when 'iossimarm'
+    #   return "-Dtarget=aarch64-ios-simulator --sysroot #{`xcrun --sdk iphonesimulator --show-sdk-path`.gsub("\n", "")}"
         #"-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk "
     when 'ios'
       return "-Dtarget=aarch64-ios --sysroot #{`xcrun --sdk iphoneos --show-sdk-path`.gsub("\n", "")}"
