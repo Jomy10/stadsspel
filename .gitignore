@@ -11,6 +11,7 @@ app/compile_commands.json
 app/lldb.txt
 **/*.osm*
 **/*.o5m*
+app/android_manual
 
 app/test
 app/__common

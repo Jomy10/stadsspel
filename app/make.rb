@@ -122,6 +122,8 @@ cmd :build do
 
   cmds_to_execute = []
   commands = {
+    :olive => :build_copy_olive_include,
+    :stb => :build_copy_stb_include,
     :hashmap => :build_hashmap,
     :o5mreader => :build_o5mreader,
     :zig_all => :build_zig_all,
@@ -129,9 +131,7 @@ cmd :build do
     :util => :build_util,
     :vec => :build_vec,
     :map_data => :build_map_data,
-    :stb => :build_copy_stb_include,
     :app => :build_app,
-    :olive => :build_copy_olive_include,
     :ui => :build_ui,
     :arena => :build_arena,
   }
