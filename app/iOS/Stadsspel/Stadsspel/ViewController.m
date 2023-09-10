@@ -37,7 +37,7 @@ extern struct ViewState viewState;
     fclose(f);
     
     // Init renderer
-    OliveView* oliveView = [[OliveView alloc] initWithFrame:self.view.bounds];
+    OliveView* oliveView = [[OliveView alloc] initWithFrame:self.view.bounds device:MTLCreateSystemDefaultDevice()];
     [oliveView setData:&self->objs nodes:self->mapnodes];
     [self.view addSubview:oliveView];
     [oliveView setNeedsDisplay];

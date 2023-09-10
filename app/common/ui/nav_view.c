@@ -19,11 +19,11 @@ void renderNavView(struct _arView* self, Olivec_Canvas* canvas, arRect bounds) {
   arView* contentView = ((arView**)self->subViews->values)[data->selectedView];
   arView** navViews = data->navViews->values;
   
-  printf("Rendering nav view content %i at (%i %i %i %i)\n", data->selectedView, contentBounds.x, contentBounds.y, contentBounds.w, contentBounds.h);
+  //printf("Rendering nav view content %i at (%i %i %i %i)\n", data->selectedView, contentBounds.x, contentBounds.y, contentBounds.w, contentBounds.h);
   contentView->render(contentView, canvas, contentBounds);
   int navWidth = bounds.w / self->subViews->size;
   for (int i = 0; i < self->subViews->size; i++) {
-    printf("Rendering nav item (%i %i %i %i)\n", bounds.x + i * navWidth, bounds.y + contentBounds.h, navWidth, data->navSize);
+    //printf("Rendering nav item (%i %i %i %i)\n", bounds.x + i * navWidth, bounds.y + contentBounds.h, navWidth, data->navSize);
     navViews[i]->render(navViews[i], canvas, (arRect){bounds.x + i * navWidth, bounds.y + contentBounds.h, navWidth, data->navSize});
   }
 }

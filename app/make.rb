@@ -79,8 +79,7 @@ def_lib("map_data", "common/map_data/src", include: [INCLUDE_OUT])
 def_lib("util", "common/util", include: [INCLUDE_OUT])
 def_lib("vec", "common/vec", include: [INCLUDE_OUT])
 # def_lib("uirenderer", "common/uirenderer", include: [INCLUDE_OUT])
-# require_relative "common/render_backends/make.rb"
-require_relative "macOS/make.rb"
+# require_relative "macOS/make.rb"
 def_lib("app", "common/app", include: [INCLUDE_OUT]);
 def_lib("ui", "common/ui", include: [INCLUDE_OUT])
 def_lib("arena", "common/arena", include: [INCLUDE_OUT])
@@ -89,12 +88,6 @@ def_lib("arena", "common/arena", include: [INCLUDE_OUT])
 def_lib("mercator", "deps/mercator", include_sub_dir: "", includes_overwrite: ["mercator.h"])
 def_lib("hashmap", "deps/hashmap.c", include_sub_dir: "", includes_overwrite: ["hashmap.h"])
 def_lib("o5mreader", "deps/o5mreader/src", include_sub_dir: "", warn: "-Wno-everything", includes_overwrite: ["o5mreader.h"])
-require_relative "deps/cairo_build.rb"
-
-cmd :build_copy_sdl_include do
-  include_dir = File.join(INCLUDE_OUT, "SDL3")
-  if !File.exist?(include_dir) then sh %(ln -s #{File.absolute_path(File.join("deps", "SDL", "include"))} #{include_dir}) end
-end
 
 cmd :build_copy_stb_include do
   include_dir = File.join(INCLUDE_OUT, "stb")
@@ -119,8 +112,6 @@ def_xcframework("vec")
 # def_xcframework("renderer")
 # def_xcframework("uirenderer")
 # def_xcframework("app");
-def_xcframework("cairo", if PLATFORM =~ /ios.*/ then [File.join("deps", "cairo-ios", "cairo-version.h"), *Dir[File.join("deps", "cairo-ios", "cairo", "*.h")]] else File.join(INCLUDE_OUT, "cairo") end, copy_headers: true);
-def_xcframework("pixman")
 # def_xcframework("ui")
 def_xcframework("arena")
 #== End Define build steps ==#
@@ -138,7 +129,6 @@ cmd :build do
     :util => :build_util,
     :vec => :build_vec,
     :map_data => :build_map_data,
-    :sdl => :build_copy_sdl_include,
     :stb => :build_copy_stb_include,
     :app => :build_app,
     :olive => :build_copy_olive_include,
@@ -187,8 +177,6 @@ cmd :dbg do
   libraries = [
       "util", "renderer", "vec", "map_data", "mercator", "render_objects",
       "hashmap", "o5mreader"
-      #"SDL3"
-      # "bgfx"
     ]
     .map { |l| "-l#{l}" }
     .join " "

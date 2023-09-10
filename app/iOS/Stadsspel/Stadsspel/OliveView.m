@@ -15,7 +15,7 @@
 #include <ui/view.h>
 #include <ui/nav_view.h>
 
-//#undef OLIVEC_IMPLEMENTATION
+#include <olive.c>
 
 #define BYTES_PER_COMPONENT 4
 
@@ -30,14 +30,8 @@ BOOL rectsizeeq(CGRect* rect1, CGRect* rect2) {
 
 @implementation OliveView
 
-- (id)init {
-    NSLog(@"Initializing OliveView\n");
-    self = [super init];
-    [self commonInit];
-    return self;
-}
-
 - (void)commonInit {
+    if (self.device == nil) self.device = MTLCreateSystemDefaultDevice();
     self->previousRect = CGRectMake(-1, -1, -1, -1);
     self->bitmap = nil;
     self->reallocator = br_init();
@@ -46,13 +40,21 @@ BOOL rectsizeeq(CGRect* rect1, CGRect* rect2) {
     self->mapnodes = nil;
     ar_setAllocator(self->uiAllocator);
     self->scaleFactor = [self contentScaleFactor]; // support for retina displays
-  
+    
     createRootView(&self->root, &self->mapViewLevel, &self->navSize, &self->selectedNavItem,
                    &self->navViewData,
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wincompatible-pointer-types-discards-qualifiers"
                    &self->objs, &self->mapnodes);
 #pragma clang diagnostic pop
+    
+    // Metal
+    assert(self.device != nil);
+    self->commandQueue = [self.device newCommandQueue];
+    self->ciContext = [CIContext contextWithMTLDevice:self.device options:nil];
+    
+    // this allows us to render into the view's drawable
+    self.framebufferOnly = false;
 
     NSLog(@"Created new OliveView: %@\n", self);
 
@@ -62,12 +64,26 @@ BOOL rectsizeeq(CGRect* rect1, CGRect* rect2) {
     [self setTapGestureRecognizer:tgr];
 }
 
+- (id)init {
+    NSLog(@"Initializing OliveView\n");
+    self = [super init];
+    [self commonInit];
+    return self;
+}
+
 - (id)initWithFrame:(CGRect)frame {
     NSLog(@"Initializing OliveView with frame %@\n", NSStringFromCGRect(frame));
     self = [super initWithFrame:frame];
     [self commonInit];
     [self reinitWithFrame:frame];
     NSLog(@"Initialized\n");
+    return self;
+}
+
+- (id)initWithFrame:(CGRect)frameRect device:(id<MTLDevice>)device {
+    self = [super initWithFrame:frameRect device:device];
+    [self commonInit];
+    [self reinitWithFrame:frameRect];
     return self;
 }
 
@@ -83,7 +99,8 @@ BOOL rectsizeeq(CGRect* rect1, CGRect* rect2) {
     self->objs = objs;
     self->mapnodes = mapnodes;
     CGRect bounds = self.frame;
-    renderApp(self->canvas, self->root, (arRect){bounds.origin.x, bounds.origin.y, bounds.size.width, bounds.size.height});
+    [self drawUI:bounds];
+    [self setNeedsDisplay];
 }
 
 - (void)dealloc {
@@ -98,41 +115,62 @@ BOOL rectsizeeq(CGRect* rect1, CGRect* rect2) {
     return CGRectMake(_rect.origin.x, _rect.origin.y, w, h);
 }
 
+// https://stackoverflow.com/a/64285288/14874405
+// TODO: only redraw when changed
 - (void)drawRect:(CGRect)_rect {
-    NSLog(@"Drawing OliveView\n");
-    //const int bytes_per_component = 4;
     CGRect rect = [self getRetinaBounds:_rect];
     int w = rect.size.width;
     int h = rect.size.height;
 
-    if (rectsizeeq(&self->previousRect, &rect)) {
-        return;
+    if (!rectsizeeq(&self->previousRect, &rect)) {
+        [self reinitWithFrame:rect];
     }
     
-    [self reinitWithFrame:rect];
-    [self render:rect];
+    id<MTLCommandBuffer> buffer = [self->commandQueue commandBuffer];
+    assert(buffer != nil);
+    
+    [self drawUI:rect];
 
     NSData* bitmapData = [NSData
                           dataWithBytes:self->bitmap
                           length:w * h * BYTES_PER_COMPONENT];
+
+    // todo: does auto update on buffer update?
     CIImage* ciimg = [CIImage
                       imageWithBitmapData:bitmapData
                       bytesPerRow:w * BYTES_PER_COMPONENT
                       size:rect.size
                       format:kCIFormatRGBA8
                       colorSpace:CGColorSpaceCreateDeviceRGB()];
-    UIImage* uiimage = [UIImage imageWithCIImage:ciimg];
-
-    UIImageView* imgView = [[UIImageView alloc] initWithImage:uiimage];
-    imgView.contentMode = UIViewContentModeScaleAspectFill;
-    imgView.frame = _rect;
-
-    [[self subviews].firstObject removeFromSuperview];
-
-    [self addSubview:imgView];
+   
+    // Resize retina image to fit the screen
+    CGFloat scale = self.drawableSize.width / ciimg.extent.size.width;
+    [ciimg imageByApplyingTransform:CGAffineTransformMakeScale(scale, scale)];
+    
+    CIRenderDestination* destination = [[CIRenderDestination alloc]
+                                        initWithWidth:w height:h
+                                        pixelFormat:self.colorPixelFormat
+                                        commandBuffer:nil
+                                        mtlTextureProvider:^id<MTLTexture> _Nonnull{
+                                            return self.currentDrawable.texture;
+                                        }];
+    
+    NSError* error;
+    [self->ciContext startTaskToRender:ciimg
+     // TODO: only render parts that have changed (when updating view,
+     // put the rect to be redrawn into an array
+                              fromRect:rect
+                         toDestination:destination
+                               atPoint:rect.origin
+                                 error:&error];
+    if (error != nil) NSLog(@"RENDER ERROR: %@", error);
+    
+    [buffer presentDrawable:self.currentDrawable];
+    [buffer commit];
 }
 
-- (void)render:(CGRect)rect {
+- (void)drawUI:(CGRect)rect {
+    olivec_fill(self->canvas, 0xFF000000); // clear screen
     renderApp(self->canvas, self->root, (arRect){rect.origin.x, rect.origin.y, rect.size.width, rect.size.height});
 }
 
@@ -148,7 +186,8 @@ BOOL rectsizeeq(CGRect* rect1, CGRect* rect2) {
     
     *self->selectedNavItem = index;
     
-    [self render:self->previousRect];
+    [self drawUI:self->previousRect];
+    [self setNeedsDisplay];
 }
 
 @end

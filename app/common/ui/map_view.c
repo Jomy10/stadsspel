@@ -39,15 +39,14 @@ void renderStreets(Olivec_Canvas* canvas, int renX, int renY, int renW, int renH
     return;
   }
   
-  printf("[renderStreets] Drawing map view in %i %i %i %i\n", renX, renY, renW, renH);
-  // SDL_SetRenderDrawColor(gRenderer, CMAP_MAIN);
+//  printf("[renderStreets] Drawing map view in %i %i %i %i\n", renX, renY, renW, renH);
   Vec(arPoint) points = createVec(arPoint, 100);
   arPoint point;
-  u64 *nodeids;
+  u64* nodeids;
   size_t nodeidsCount;
-  MapNode *node;
+  MapNode* node;
 
-  RO_Street *streets;
+  RO_Street* streets;
   int streetsSize;
 
   RO_getStreets(objs, &streets, &streetsSize);

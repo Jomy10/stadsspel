@@ -3,7 +3,8 @@
 #include <ui/map_view.h>
 #include <ui/nav_view.h>
 #include <ui/list_view.h>
-#include <ui/scoreboard_nav_item.h>
+#include <ui/scoreboard.h>
+#include <ui/background_view.h>
 
 void createRootView(
   arView** root,
@@ -38,20 +39,26 @@ void createRootView(
   *selectedNav = &navViewData->selectedView;
   *navSize = &navViewData->navSize;
   
-  // nav view items
-  ar_addSubView(navView, mapView);
-  veca_append(navViewData->navViews, &mapViewNavItem);
   
   // Leaderboard
   UniformListViewData* scoreboardViewData = al_alloc(arAllocator, sizeof(UniformListViewData));
   scoreboardViewData->subviewHeight = 400;
   scoreboardViewData->itemMargin = 20;
-  arView* scoreboardView = createUniformListView(scoreboardViewData);
+  arView* scoreboardViewContent = createUniformListView(scoreboardViewData);
   
+  BackgroundFillViewData* scoreboardViewBgData = al_alloc(arAllocator, sizeof(BackgroundFillViewData));
+  scoreboardViewBgData->fillColor = 0xFFb00b00;
+  arView* scoreboardView = createBackgroundFillView(scoreboardViewBgData, scoreboardViewContent);
+
   arView* scoreboardViewNavItem = createScoreboardViewNavItem();
+  
+  // nav view items
+  ar_addSubView(navView, mapView);
+  veca_append(navViewData->navViews, &mapViewNavItem);
   
   ar_addSubView(navView, scoreboardView);
   veca_append(navViewData->navViews, &scoreboardViewNavItem);
+  
   
   ar_addSubView(*root, navView);
 }

@@ -9,6 +9,7 @@
 #define OliveView_h
 
 #import <UIKit/UIKit.h>
+#import <MetalKit/MetalKit.h>
 #include "bufferReallocator.h"
 #include <map_data/render_objects.h>
 #include <hashmap.h>
@@ -19,7 +20,7 @@
 #define OLIVEC_IMPLEMENTATION
 #include <olive.c>
 
-@interface OliveView : UIView {
+@interface OliveView : MTKView {
     unsigned char* bitmap;
     Olivec_Canvas canvas;
     CGRect previousRect;
@@ -29,6 +30,10 @@
     arView* root;
     Allocator* uiAllocator;
     int scaleFactor; // retina displays
+    
+    // Metal
+    id<MTLCommandQueue> commandQueue;
+    CIContext* ciContext;
 
     float* mapViewLevel;
     int* navSize;

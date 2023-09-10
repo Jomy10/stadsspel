@@ -10,6 +10,12 @@
 
 #include "view.h"
 
-arView* createScoreboardViewNavItem();
+typedef struct {
+    int rang;
+    char* name;
+} ScoreboardViewData;
+
+arView* createScoreboardViewContent(ScoreboardViewData* data);
+arView* createScoreboardViewNavItem(void);
 
 #endif /* scoreboard_nav_item_h */
