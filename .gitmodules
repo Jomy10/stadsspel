@@ -10,3 +10,9 @@
 [submodule "app/deps/olive.c"]
 	path = app/deps/olive.c
 	url = https://github.com/tsoding/olive.c
+[submodule "app/android/rawdraw"]
+	path = app/android/rawdraw
+	url = https://github.com/cntools/rawdraw
+[submodule "app/android/cnfa"]
+	path = app/android/cnfa
+	url = https://github.com/cntools/cnfa/
