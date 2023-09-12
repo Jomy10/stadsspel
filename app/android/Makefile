@@ -20,15 +20,16 @@ SRC?=main.c
 #Your app should (though not necessarily) support all the way back to Android 22. 
 ANDROIDVERSION?=33
 ANDROIDTARGET?=$(ANDROIDVERSION)
-CFLAGS?=-ffunction-sections -Os -fdata-sections -Wall -fvisibility=hidden
-LDFLAGS?=-Wl,--gc-sections -Wl,-Map=output.map -s
+override CFLAGS+=-ffunction-sections -Os -fdata-sections -Wall
+#-fvisibility=hidden
+override LDFLAGS+=-Wl,--gc-sections -Wl,-Map=output.map -s
 ANDROID_FULLSCREEN?=y
 # ADB?=adb
 UNAME := $(shell uname)
 
 # For really tight compiles....
-CFLAGS += -fvisibility=hidden
-LDFLAGS += -s
+#override CFLAGS += -fvisibility=hidden
+override LDFLAGS += -s
 
 # For C++
 # LDFLAGS += -static-libstdc++
@@ -64,7 +65,7 @@ ANDROIDSDK?=$(firstword $(foreach dir, $(SDK_LOCATIONS), $(basename $(dir) ) ) )
 NDK?=$(firstword $(ANDROID_NDK) $(ANDROID_NDK_HOME) $(wildcard $(ANDROIDSDK)/ndk/*) $(wildcard $(ANDROIDSDK)/ndk-bundle/*) )
 BUILD_TOOLS?=$(lastword $(wildcard $(ANDROIDSDK)/build-tools/*) )
 
-# fall back to default Android SDL installation location if valid NDK was not found
+# fall back to default Android SDK installation location if valid NDK was not found
 ifeq ($(NDK),)
 ANDROIDSDK := ~/Android/Sdk
 endif
@@ -85,13 +86,13 @@ testsdk :
 	@echo "NDK:\t\t" $(NDK)
 	@echo "Build Tools:\t" $(BUILD_TOOLS)
 
-CFLAGS+=-Os -DANDROID -DAPPNAME=\"$(APPNAME)\"
+override CFLAGS+=-Os -DANDROID -DAPPNAME=\"$(APPNAME)\"
 ifeq (ANDROID_FULLSCREEN,y)
-CFLAGS +=-DANDROID_FULLSCREEN
+override CFLAGS +=-DANDROID_FULLSCREEN
 endif
-CFLAGS+= -I$(RAWDRAWANDROID)/rawdraw -I$(NDK)/sysroot/usr/include -I$(NDK)/sysroot/usr/include/android -I$(NDK)/toolchains/llvm/prebuilt/$(OS_NAME)/sysroot/usr/include -I$(NDK)/toolchains/llvm/prebuilt/$(OS_NAME)/sysroot/usr/include/android -fPIC -I$(RAWDRAWANDROID) -DANDROIDVERSION=$(ANDROIDVERSION)
-LDFLAGS += -lm -lGLESv3 -lEGL -landroid -llog -lOpenSLES
-LDFLAGS += -shared -uANativeActivity_onCreate
+override CFLAGS+= -I$(RAWDRAWANDROID)/rawdraw -I$(NDK)/sysroot/usr/include -I$(NDK)/sysroot/usr/include/android -I$(NDK)/toolchains/llvm/prebuilt/$(OS_NAME)/sysroot/usr/include -I$(NDK)/toolchains/llvm/prebuilt/$(OS_NAME)/sysroot/usr/include/android -fPIC -I$(RAWDRAWANDROID) -DANDROIDVERSION=$(ANDROIDVERSION)
+override LDFLAGS += -lm -lGLESv3 -lEGL -landroid -llog -lOpenSLES
+override LDFLAGS += -shared -uANativeActivity_onCreate
 
 CC_ARM64:=$(NDK)/toolchains/llvm/prebuilt/$(OS_NAME)/bin/aarch64-linux-android$(ANDROIDVERSION)-clang
 CC_ARM32:=$(NDK)/toolchains/llvm/prebuilt/$(OS_NAME)/bin/armv7a-linux-androideabi$(ANDROIDVERSION)-clang
@@ -101,14 +102,22 @@ AAPT:=$(BUILD_TOOLS)/aapt
 
 # Which binaries to build? Just comment/uncomment these lines:
 TARGETS += makecapk/lib/arm64-v8a/lib$(APPNAME).so
-#TARGETS += makecapk/lib/armeabi-v7a/lib$(APPNAME).so
-#TARGETS += makecapk/lib/x86/lib$(APPNAME).so
-#TARGETS += makecapk/lib/x86_64/lib$(APPNAME).so
+ifeq (${TARGET_ARM32},true)
+TARGETS += makecapk/lib/armeabi-v7a/lib$(APPNAME).so
+endif
+ifeq (${TARGET_X86_32},true)
+TARGETS += makecapk/lib/x86/lib$(APPNAME).so
+endif
+ifeq (${TARGET_X86_64},true)
+TARGETS += makecapk/lib/x86_64/lib$(APPNAME).so
+endif
 
 CFLAGS_ARM64:=-m64
 CFLAGS_ARM32:=-mfloat-abi=softfp -m32
-CFLAGS_x86:=-march=i686 -mtune=intel -mssse3 -mfpmath=sse -m32
-CFLAGS_x86_64:=-march=x86-64 -msse4.2 -mpopcnt -m64 -mtune=intel
+CFLAGS_x86:=-march=i686 -mssse3 -mfpmath=sse -m32
+#-mtune=intel 
+CFLAGS_x86_64:=-march=x86-64 -msse4.2 -mpopcnt -m64
+#-mtune=intel
 STOREPASS?=password
 DNAME:="CN=example.com, OU=ID, O=Example, L=Doe, S=John, C=GB"
 KEYSTOREFILE:=my-release-key.keystore
@@ -149,8 +158,6 @@ makecapk/lib/x86_64/lib$(APPNAME).so : $(ANDROIDSRCS)
 #Notes for the past:  These lines used to work, but don't seem to anymore.  Switched to newer jarsigner.
 #(zipalign -c -v 8 makecapk.apk)||true #This seems to not work well.
 #jarsigner -verify -verbose -certs makecapk.apk
-
-
 
 makecapk.apk : $(TARGETS) $(EXTRA_ASSETS_TRIGGER) AndroidManifest.xml
 	mkdir -p makecapk/assets
