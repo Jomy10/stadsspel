@@ -11,6 +11,8 @@
 		08117D962AAC61100016F985 /* list_view.c in Sources */ = {isa = PBXBuildFile; fileRef = 08117D952AAC61100016F985 /* list_view.c */; };
 		08117D992AAC95170016F985 /* scoreboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 08117D982AAC95170016F985 /* scoreboard.c */; };
 		08117D9C2AACFF630016F985 /* background_view.c in Sources */ = {isa = PBXBuildFile; fileRef = 08117D9B2AACFF630016F985 /* background_view.c */; };
+		08117DA52AB0FB2A0016F985 /* login.c in Sources */ = {isa = PBXBuildFile; fileRef = 08117DA42AB0FB2A0016F985 /* login.c */; };
+		08117DA72AB37EC10016F985 /* ios_util.m in Sources */ = {isa = PBXBuildFile; fileRef = 08117DA62AB37EC10016F985 /* ios_util.m */; };
 		085DF5222AA117A5001CC9CC /* AppDelegate.h in Sources */ = {isa = PBXBuildFile; fileRef = 085DE1332AA1131C001CC9CC /* AppDelegate.h */; };
 		085DF5232AA117A7001CC9CC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 085DE1342AA1131C001CC9CC /* AppDelegate.m */; };
 		085DF5242AA117A9001CC9CC /* SceneDelegate.h in Sources */ = {isa = PBXBuildFile; fileRef = 085DE1362AA1131C001CC9CC /* SceneDelegate.h */; };
@@ -28,9 +30,9 @@
 		08996D162AAB7F58008DBB1F /* arena.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08996D152AAB7F58008DBB1F /* arena.xcframework */; };
 		08996D172AAB7F62008DBB1F /* arena.xcframework in embed frameworks */ = {isa = PBXBuildFile; fileRef = 08996D152AAB7F58008DBB1F /* arena.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		08996D222AABB855008DBB1F /* scoreboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 08996D192AABB855008DBB1F /* scoreboard.c */; };
-		08996D232AABB855008DBB1F /* default_ui.c in Sources */ = {isa = PBXBuildFile; fileRef = 08996D1F2AABB855008DBB1F /* default_ui.c */; };
+		08996D232AABB855008DBB1F /* root_ui.c in Sources */ = {isa = PBXBuildFile; fileRef = 08996D1F2AABB855008DBB1F /* root_ui.c */; };
 		08996D242AABB855008DBB1F /* map.c in Sources */ = {isa = PBXBuildFile; fileRef = 08996D202AABB855008DBB1F /* map.c */; };
-		08996D252AABB855008DBB1F /* renderer.c in Sources */ = {isa = PBXBuildFile; fileRef = 08996D212AABB855008DBB1F /* renderer.c */; };
+		08996D252AABB855008DBB1F /* app.c in Sources */ = {isa = PBXBuildFile; fileRef = 08996D212AABB855008DBB1F /* app.c */; };
 		08CA05182AA9A67800A94043 /* OliveView.m in Sources */ = {isa = PBXBuildFile; fileRef = 08CA05172AA9A67800A94043 /* OliveView.m */; };
 		08DD7D9F2AA1422E005A9582 /* hashmap.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 085DE2662AA11588001CC9CC /* hashmap.xcframework */; };
 		08DD7DA02AA1422E005A9582 /* hashmap.xcframework in embed frameworks */ = {isa = PBXBuildFile; fileRef = 085DE2662AA11588001CC9CC /* hashmap.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -116,6 +118,10 @@
 		08117D982AAC95170016F985 /* scoreboard.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = scoreboard.c; sourceTree = "<group>"; };
 		08117D9A2AACFF630016F985 /* background_view.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = background_view.h; sourceTree = "<group>"; tabWidth = 2; };
 		08117D9B2AACFF630016F985 /* background_view.c */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = background_view.c; sourceTree = "<group>"; tabWidth = 2; };
+		08117DA32AB0FB2A0016F985 /* login.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = login.h; sourceTree = "<group>"; };
+		08117DA42AB0FB2A0016F985 /* login.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = login.c; sourceTree = "<group>"; };
+		08117DA62AB37EC10016F985 /* ios_util.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ios_util.m; sourceTree = "<group>"; };
+		08117DA82AB37ED20016F985 /* ios_util.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ios_util.h; sourceTree = "<group>"; };
 		085DE1302AA1131C001CC9CC /* Stadsspel.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Stadsspel.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		085DE1332AA1131C001CC9CC /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		085DE1342AA1131C001CC9CC /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -485,7 +491,7 @@
 		085DE3842AA1158C001CC9CC /* log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log.h; sourceTree = "<group>"; };
 		085DE3852AA1158C001CC9CC /* allocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = allocator.h; sourceTree = "<group>"; };
 		085DE3862AA1158C001CC9CC /* uuid.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uuid.c; sourceTree = "<group>"; };
-		085DE3892AA1158C001CC9CC /* 422b7cc7dfd23003fdfe7314599cf950 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 422b7cc7dfd23003fdfe7314599cf950; sourceTree = "<group>"; };
+		085DE3892AA1158C001CC9CC /* 422b7cc7dfd23003fdfe7314599cf950 */ = {isa = PBXFileReference; lastKnownFileType = text; path = 422b7cc7dfd23003fdfe7314599cf950; sourceTree = "<group>"; };
 		085DE38C2AA1158C001CC9CC /* build.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = build.o; sourceTree = "<group>"; };
 		085DE38D2AA1158C001CC9CC /* build */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = build; sourceTree = "<group>"; };
 		085DE38F2AA1158C001CC9CC /* build.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = build.o; sourceTree = "<group>"; };
@@ -671,13 +677,13 @@
 		08996CCC2AAA275C008DBB1F /* bufferReallocator.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = bufferReallocator.c; sourceTree = "<group>"; };
 		08996D152AAB7F58008DBB1F /* arena.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = arena.xcframework; sourceTree = "<group>"; };
 		08996D192AABB855008DBB1F /* scoreboard.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = scoreboard.c; sourceTree = "<group>"; };
-		08996D1B2AABB855008DBB1F /* default_ui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = default_ui.h; sourceTree = "<group>"; };
+		08996D1B2AABB855008DBB1F /* root_ui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = root_ui.h; sourceTree = "<group>"; };
 		08996D1C2AABB855008DBB1F /* map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = map.h; sourceTree = "<group>"; };
-		08996D1D2AABB855008DBB1F /* renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = renderer.h; sourceTree = "<group>"; };
+		08996D1D2AABB855008DBB1F /* app.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = app.h; sourceTree = "<group>"; tabWidth = 2; };
 		08996D1E2AABB855008DBB1F /* scoreboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scoreboard.h; sourceTree = "<group>"; };
-		08996D1F2AABB855008DBB1F /* default_ui.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = default_ui.c; sourceTree = "<group>"; tabWidth = 2; };
+		08996D1F2AABB855008DBB1F /* root_ui.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = root_ui.c; sourceTree = "<group>"; tabWidth = 2; };
 		08996D202AABB855008DBB1F /* map.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = map.c; sourceTree = "<group>"; };
-		08996D212AABB855008DBB1F /* renderer.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = renderer.c; sourceTree = "<group>"; tabWidth = 2; };
+		08996D212AABB855008DBB1F /* app.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = app.c; sourceTree = "<group>"; tabWidth = 2; };
 		08CA05172AA9A67800A94043 /* OliveView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OliveView.m; sourceTree = "<group>"; wrapsLines = 0; };
 		08CA05192AA9A68700A94043 /* OliveView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OliveView.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -737,8 +743,8 @@
 				085DE1412AA1131F001CC9CC /* LaunchScreen.storyboard */,
 				085DE1442AA1131F001CC9CC /* Info.plist */,
 				085DE1452AA1131F001CC9CC /* main.m */,
-				08996CCB2AAA275C008DBB1F /* bufferReallocator.h */,
-				08996CCC2AAA275C008DBB1F /* bufferReallocator.c */,
+				08117DA62AB37EC10016F985 /* ios_util.m */,
+				08117DA82AB37ED20016F985 /* ios_util.h */,
 			);
 			path = Stadsspel;
 			sourceTree = "<group>";
@@ -3259,10 +3265,12 @@
 			isa = PBXGroup;
 			children = (
 				08996D1A2AABB855008DBB1F /* include */,
-				08996D1F2AABB855008DBB1F /* default_ui.c */,
+				08996D1F2AABB855008DBB1F /* root_ui.c */,
 				08996D202AABB855008DBB1F /* map.c */,
-				08996D212AABB855008DBB1F /* renderer.c */,
+				08996D212AABB855008DBB1F /* app.c */,
+				08996CCC2AAA275C008DBB1F /* bufferReallocator.c */,
 				08996D192AABB855008DBB1F /* scoreboard.c */,
+				08117DA42AB0FB2A0016F985 /* login.c */,
 			);
 			name = app;
 			path = ../../../common/app;
@@ -3271,10 +3279,12 @@
 		08996D1A2AABB855008DBB1F /* include */ = {
 			isa = PBXGroup;
 			children = (
-				08996D1B2AABB855008DBB1F /* default_ui.h */,
+				08996D1B2AABB855008DBB1F /* root_ui.h */,
 				08996D1C2AABB855008DBB1F /* map.h */,
-				08996D1D2AABB855008DBB1F /* renderer.h */,
+				08996D1D2AABB855008DBB1F /* app.h */,
+				08996CCB2AAA275C008DBB1F /* bufferReallocator.h */,
 				08996D1E2AABB855008DBB1F /* scoreboard.h */,
+				08117DA32AB0FB2A0016F985 /* login.h */,
 			);
 			path = include;
 			sourceTree = "<group>";
@@ -3420,6 +3430,8 @@
 				08CA05182AA9A67800A94043 /* OliveView.m in Sources */,
 				08849F2A2AABBB1900024D0F /* view.c in Sources */,
 				085DF5222AA117A5001CC9CC /* AppDelegate.h in Sources */,
+				08117DA52AB0FB2A0016F985 /* login.c in Sources */,
+				08117DA72AB37EC10016F985 /* ios_util.m in Sources */,
 				085DF5232AA117A7001CC9CC /* AppDelegate.m in Sources */,
 				085DF5242AA117A9001CC9CC /* SceneDelegate.h in Sources */,
 				08996CCD2AAA275C008DBB1F /* bufferReallocator.c in Sources */,
@@ -3427,12 +3439,12 @@
 				08849F282AABBB1900024D0F /* map_view.c in Sources */,
 				085DF5252AA117AC001CC9CC /* SceneDelegate.m in Sources */,
 				085DF5262AA117AF001CC9CC /* ViewController.h in Sources */,
-				08996D252AABB855008DBB1F /* renderer.c in Sources */,
+				08996D252AABB855008DBB1F /* app.c in Sources */,
 				085DF5272AA117B1001CC9CC /* ViewController.m in Sources */,
 				08117D932AAC4B390016F985 /* nav_view.c in Sources */,
 				085DF5282AA117B4001CC9CC /* main.m in Sources */,
 				08849F292AABBB1900024D0F /* coordinate_transform.c in Sources */,
-				08996D232AABB855008DBB1F /* default_ui.c in Sources */,
+				08996D232AABB855008DBB1F /* root_ui.c in Sources */,
 				08117D992AAC95170016F985 /* scoreboard.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

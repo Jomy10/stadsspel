@@ -37,7 +37,8 @@ arView* createNavView(NavViewData* data) {
 }
 
 /// Returns the index of the nav view that was clicked by the user
-int touchedNavViewIndex(NavViewData* data, arRect viewBounds, arPoint pos) {
+int navview_touchedNavViewIndex(NavViewData* data, arRect viewBounds, arPoint pos) {
+  printf("%i %i in %i %i %i %i\n", pos.x, pos.y, viewBounds.x, viewBounds.y, viewBounds.w, viewBounds.h);
   if (
        pos.x >= viewBounds.x && pos.x <= viewBounds.x + viewBounds.w
     && pos.y >= viewBounds.y + (viewBounds.h - data->navSize) && pos.y <= viewBounds.h

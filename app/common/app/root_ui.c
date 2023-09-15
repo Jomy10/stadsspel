@@ -1,4 +1,4 @@
-#include "include/default_ui.h"
+#include "include/root_ui.h"
 #include <ui/view.h>
 #include <ui/map_view.h>
 #include <ui/nav_view.h>
@@ -12,7 +12,7 @@ void createRootView(
   float** mapZoomLevel, int** navSize, int** selectedNav,
   NavViewData** navViewDataOut,
   // input data
-  const MapRenderObjects** objs, const struct hashmap** mapnodes)
+  const MapRenderObjects* objs, const struct hashmap** mapnodes)
 {
   *root = createArView();
 
@@ -45,7 +45,6 @@ void createRootView(
   scoreboardViewData->subviewHeight = 400;
   scoreboardViewData->itemMargin = 20;
   arView* scoreboardViewContent = createUniformListView(scoreboardViewData);
-
 
   BackgroundFillViewData* scoreboardViewBgData = al_alloc(arAllocator, sizeof(BackgroundFillViewData));
   scoreboardViewBgData->fillColor = 0xFFb00b00;

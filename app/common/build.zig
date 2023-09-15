@@ -1,5 +1,6 @@
 const std = @import("std");
 const builtin = @import("builtin");
+const AndroidSdk = @import("Sdk.zig");
 
 const Library = enum {
     all,
@@ -15,24 +16,43 @@ pub fn build(b: *std.Build) void {
     std.debug.print("Building for optimization level: {}\n", .{optimize});
     std.debug.print("Building for {any} {any}\n", .{ target.cpu_arch, target.os_tag });
 
-    const sdk_path = if (b.sysroot) |sysroot| sysroot else switch (builtin.os.tag) {
-        .macos => blk: {
-            const target_info = std.zig.system.NativeTargetInfo.detect(target) catch
-                @panic("Couldn't detect native target inifo");
-            const sdk = std.zig.system.darwin.getSdk(b.allocator, target_info.target) orelse
-                @panic("Couldn't detect Apple SDK");
-            break :blk sdk;
-        },
-        else => {
-            @panic("Missing path to Apple SDK");
-        },
-    };
-    b.sysroot = sdk_path;
+    // const darwin = builtin.os.isDarwin();
+    const darwin = target.os_tag.?.isDarwin();
+    const android = (target.abi orelse .none) == .android;
+
+    var android_sdk: *AndroidSdk = undefined;
+    var android_version = b.option(AndroidSdk.AndroidVersion, "android-version", "the android version, default is android13") orelse .android13;
+    _ = android_version;
+    if (android) {
+        std.debug.print("Linking SDK for Android\n", .{});
+        android_sdk = AndroidSdk.init(b, null, .{});
+    }
+
+    var ios_sdk_path: ?[]const u8 = null;
+    if (darwin) {
+        std.debug.print("Linking sysroot for Darwin system\n", .{});
+        ios_sdk_path = if (b.sysroot) |sysroot| sysroot else switch (builtin.os.tag) {
+            .macos => blk: {
+                const target_info = std.zig.system.NativeTargetInfo.detect(target) catch
+                    @panic("Couldn't detect native target info");
+                const sdk = std.zig.system.darwin.getSdk(b.allocator, target_info.target) orelse
+                    @panic("Couldn't detect Apple SDK");
+                break :blk sdk;
+            },
+            else => {
+                @panic("Missing path to Apple SDK");
+            },
+        };
+        b.sysroot = ios_sdk_path.?;
+    }
 
     var build_options = b.addOptions();
     build_options.addOption(bool, "no_cstd_import", if (target.os_tag) |tag| switch (tag) {
         .ios => true, // problems linking to C standarrd library
-        else => false,
+        else => switch (target.abi orelse .none) {
+            .android => true,
+            else => false,
+        },
     } else false);
     build_options.addOption(bool, "alt_panic", if (target.os_tag) |tag| switch (tag) {
         .ios => true,
@@ -85,7 +105,20 @@ pub fn build(b: *std.Build) void {
     // darwin platforms (TODO: check and only include of target is darwin (simulator, ios, macos, tvos, ...))
     // const sdk = std.zig.system.darwin.getSdk(b.allocator, target.toTarget()).?;
     // defer sdk.deinit(allocator);
-    render_objects_lib.addSystemIncludePath(.{ .path = sdk_path });
+    if (darwin) {
+        render_objects_lib.addSystemIncludePath(.{ .path = ios_sdk_path.? });
+    }
+    if (android) {
+        render_objects_lib.link_emit_relocs = true;
+        render_objects_lib.link_eh_frame_hdr = true;
+        render_objects_lib.force_pic = true;
+        render_objects_lib.link_function_sections = true;
+        render_objects_lib.bundle_compiler_rt = true;
+        render_objects_lib.strip = (optimize == .ReleaseSmall);
+        render_objects_lib.export_table = true;
+        render_objects_lib.defineCMacro("ANDROID", null);
+        render_objects_lib.linkLibC();
+    }
 
     // render_objects_lib.addFrameworkPath(.{ .path = b.pathJoin(&.{ b.sysroot.?, "/System/Library/Frameworks" }) });
     // render_objects_lib.addSystemIncludePath(.{ .path = b.pathJoin(&.{ b.sysroot.?, "/usr/include" }) });

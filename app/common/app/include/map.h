@@ -6,9 +6,6 @@
 #include <map_data/render_objects.h>
 #include <map_data/parse.h>
 
-MapRenderObjects* getObjs(void);
-struct hashmap* getNodes(void);
-
 bool initMap(FILE*, MapRenderObjects*, struct hashmap**);
 void deinitMap(MapRenderObjects*, struct hashmap*);
 

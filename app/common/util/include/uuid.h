@@ -14,9 +14,9 @@
 
 #else
 
-  typedef unsigned char[16] uuid_t;
+  typedef unsigned char uuid_t[16];
   int uuid_compare(uuid_t a, uuid_t b);
-  void uuid_generate(uuid_t* uuid);
+  void uuid_generate(uuid_t uuid);
 
 #endif
 

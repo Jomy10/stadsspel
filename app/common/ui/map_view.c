@@ -21,7 +21,7 @@ void renderStreet(Olivec_Canvas* canvas, const arPoint *points, int pointsCount,
 void renderMapView(arView* self, Olivec_Canvas* canvas, arRect bounds) {
   const MapViewData* data = self->data;
 
-  renderStreets(canvas, bounds.x, bounds.y, bounds.w, bounds.h, data->zoomLevel, *data->objs, *data->mapnodes);
+  renderStreets(canvas, bounds.x, bounds.y, bounds.w, bounds.h, data->zoomLevel, data->objs, *data->mapnodes);
 }
 
 arView* createMapView(MapViewData* data) {

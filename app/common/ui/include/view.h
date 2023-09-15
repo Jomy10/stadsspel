@@ -26,6 +26,8 @@ typedef arPoint arSize;
 
 typedef uint32_t arColor;
 
+bool recteql(arRect* rect1, arRect* rect2);
+
 // Base view
 typedef struct _arView {
   VecA(arView*) subViews;

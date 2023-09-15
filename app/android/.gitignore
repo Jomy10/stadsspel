@@ -5,3 +5,4 @@ AndroidManifest.xml
 output.map
 stadsspel.apk.idsig
 *.apk
+.idea

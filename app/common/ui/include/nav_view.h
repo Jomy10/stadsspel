@@ -18,6 +18,6 @@ typedef struct {
 
 arView* createNavView(NavViewData* data);
 
-int touchedNavViewIndex(NavViewData* data, arRect viewBounds, arPoint pos);
+int navview_touchedNavViewIndex(NavViewData* data, arRect viewBounds, arPoint pos);
 
 #endif /* nav_view_h */

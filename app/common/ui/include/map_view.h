@@ -9,7 +9,7 @@
 #include <olive.c>
 
 typedef struct {
-  const MapRenderObjects** objs;
+  const MapRenderObjects* objs;
   const struct hashmap** mapnodes;
   float zoomLevel;
 } MapViewData;

@@ -7,6 +7,7 @@ require_relative 'build-util/platform_flags.rb'
 require_relative 'build-util/make_xcframework.rb'
 # TODO: in beaver, add option for $beaver.no_color = true -> doesn't output grey
 require_relative 'build-util/xcode.rb'
+require_relative 'build-util/determine_cc.rb'
 
 $beaver.set(:e)
 
@@ -14,8 +15,18 @@ $beaver.set(:e)
 # it will keep cache for each confiiguation of build optons and rebuild
 # when those options are passed in and the files in their cache has changed
 
+HOST_MACHINE="darwin-x86_64"
+
 MACOS_VERSION="13.4"
 IOS_VERSION=ENV['IOS_VERSION']||"14.0" # defined in XCode
+
+ANDROID_SDK_ROOT=ENV["ANDROID_SDK_ROOT"]
+ANDROID_NDK_ROOT=ENV["ANDROID_NDK_ROOT"]
+ANDROID_SDK_VERSION=33
+ANDROID_VERSION=13
+
+ARCH=(ENV["ARCH"]||"X86_64").upcase
+ANDROID_MAKE_FLAGS="TARGET_#{ARCH}"
 
 PLATFORM=ENV['PLATFORM']||'macos'
 PLATFORM_FLAGS=get_platform_flags(PLATFORM)
@@ -27,21 +38,13 @@ if !(valid_platforms.include? PLATFORM)
   exit -1;
 end
 
-CC=(PLATFORM =~ /ios.*/) ? (
-  File.absolute_path(
-    File.join(`xcrun --sdk iphoneos --show-sdk-platform-path`.gsub("\n", ""),
-      "..", "..", "usr", "bin", "gcc"))
-) : (ENV['CC'] || 'clang')
+CC=get_cc(PLATFORM)
 ZIGCC=ENV['ZIGCC']||'zig'
 CFLAGS=""
-AR=ENV['AR']||(
-  (`#{CC} --version`.lines[0].include? 'clang') ?
-    (`command -v llvm-ar` == "" ? 'ar' : 'llvm-ar') :
-    'ar'
-)
+AR=get_ar(PLATFORM)
 WARN='-Wall -Wextra'
 OUT_BASE=ENV['OUT']||'out'
-OUT_BASE_PLATFORM=File.join(OUT_BASE, PLATFORM)
+OUT_BASE_PLATFORM=File.join(OUT_BASE, PLATFORM == "android" ? "#{PLATFORM}-#{ARCH}" : PLATFORM)
 OPT=(ENV['OPT']||'DEBUG')
 
 case (OPT.upcase)
@@ -167,6 +170,15 @@ cmd :build do
       puts c.to_s.blue
       call c
     end
+  end
+end
+
+# build and run the android app
+cmd :android do
+  Dir.chdir("android") do
+    # TARGET_XXX
+
+    sh %(make clean run STOREPASS=devpass CFLAGS="-g -I../out/include -L../out/android-arm64/debug/lib -lutil -lrender_objects" LDFLAGS="-g")
   end
 end
 

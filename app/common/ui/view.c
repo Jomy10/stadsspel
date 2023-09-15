@@ -1,4 +1,9 @@
 #include "include/view.h"
+#include <string.h>
+
+bool recteql(arRect* rect1, arRect* rect2) {
+  return memcmp(rect1, rect2, sizeof(arRect)) == 0;
+}
 
 void renderArView(arView* self, Olivec_Canvas* canvas, arRect bounds) {
   arView* view;

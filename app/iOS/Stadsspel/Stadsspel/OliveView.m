@@ -10,18 +10,14 @@
 #import <UIKit/UIKit.h>
 #import "OliveView.h"
 
-#include <app/renderer.h>
-#include <app/default_ui.h>
+#include <app/app.h>
 #include <ui/view.h>
 #include <ui/nav_view.h>
+#include "ios_util.h"
 
 #include <olive.c>
 
 #define BYTES_PER_COMPONENT 4
-
-arRect CGRectToArRect(CGRect rect) {
-    return (arRect){rect.origin.x, rect.origin.y, rect.size.width, rect.size.height};
-}
 
 BOOL rectsizeeq(CGRect* rect1, CGRect* rect2) {
     return rect1->size.width == rect2->size.width
@@ -32,21 +28,7 @@ BOOL rectsizeeq(CGRect* rect1, CGRect* rect2) {
 
 - (void)commonInit {
     if (self.device == nil) self.device = MTLCreateSystemDefaultDevice();
-    self->previousRect = CGRectMake(-1, -1, -1, -1);
-    self->bitmap = nil;
-    self->reallocator = br_init();
-    self->uiAllocator = makeVariableArenaAllocator(1024);
-    self->objs = nil;
-    self->mapnodes = nil;
-    ar_setAllocator(self->uiAllocator);
     self->scaleFactor = [self contentScaleFactor]; // support for retina displays
-    
-    createRootView(&self->root, &self->mapViewLevel, &self->navSize, &self->selectedNavItem,
-                   &self->navViewData,
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wincompatible-pointer-types-discards-qualifiers"
-                   &self->objs, &self->mapnodes);
-#pragma clang diagnostic pop
     
     // Metal
     assert(self.device != nil);
@@ -76,7 +58,6 @@ BOOL rectsizeeq(CGRect* rect1, CGRect* rect2) {
     self = [super initWithFrame:frame];
     [self commonInit];
     [self reinitWithFrame:frame];
-    NSLog(@"Initialized\n");
     return self;
 }
 
@@ -89,23 +70,11 @@ BOOL rectsizeeq(CGRect* rect1, CGRect* rect2) {
 
 /// (re-)initialize canvas and bitmap buffer
 - (void)reinitWithFrame:(CGRect)rect {
-    self->bitmap = br_alloc(&self->reallocator, rect.size.width * rect.size.height * BYTES_PER_COMPONENT);
-    self->canvas = olivec_canvas((UInt32*)self->bitmap, rect.size.width, rect.size.height, rect.size.width);
-    self->previousRect = rect;
-}
-
-- (void)setData:(MapRenderObjects*)objs
-          nodes:(struct hashmap*) mapnodes {
-    self->objs = objs;
-    self->mapnodes = mapnodes;
-    CGRect bounds = self.frame;
-    [self drawUI:bounds];
-    [self setNeedsDisplay];
-}
-
-- (void)dealloc {
-    br_deinit(&self->reallocator);
-    vArenaAllocator_free(self->uiAllocator);
+    reinitAppWithFrame((arRect){
+        rect.origin.x * self->scaleFactor,
+        rect.origin.y * self->scaleFactor,
+        rect.size.width * self->scaleFactor,
+        rect.size.height * self->scaleFactor});
 }
 
 - (CGRect)getRetinaBounds:(CGRect)_rect {
@@ -122,17 +91,19 @@ BOOL rectsizeeq(CGRect* rect1, CGRect* rect2) {
     int w = rect.size.width;
     int h = rect.size.height;
 
-    if (!rectsizeeq(&self->previousRect, &rect)) {
-        [self reinitWithFrame:rect];
-    }
-    
     id<MTLCommandBuffer> buffer = [self->commandQueue commandBuffer];
     assert(buffer != nil);
     
-    [self drawUI:rect];
+    if (![self drawUI:rect]) return;
 
+    unsigned char* bitmapBuffer = getViewBitmap();
+    if (bitmapBuffer == NULL) {
+        NSLog(@"WARNING: bitmapBuffer not initialized");
+        return;
+    }
+    
     NSData* bitmapData = [NSData
-                          dataWithBytes:self->bitmap
+                          dataWithBytes:getViewBitmap()
                           length:w * h * BYTES_PER_COMPONENT];
 
     // todo: does auto update on buffer update?
@@ -148,14 +119,14 @@ BOOL rectsizeeq(CGRect* rect1, CGRect* rect2) {
     [ciimg imageByApplyingTransform:CGAffineTransformMakeScale(scale, scale)];
     
     CIRenderDestination* destination = [[CIRenderDestination alloc]
-                                        initWithWidth:w height:h
-                                        pixelFormat:self.colorPixelFormat
-                                        commandBuffer:nil
-                                        mtlTextureProvider:^id<MTLTexture> _Nonnull{
-                                            return self.currentDrawable.texture;
-                                        }];
+                    initWithWidth:w height:h
+                    pixelFormat:self.colorPixelFormat
+                    commandBuffer:nil
+                    mtlTextureProvider:^id<MTLTexture> _Nonnull{
+                        return self.currentDrawable.texture;
+                    }];
     
-    NSError* error;
+    NSError* error = nil;
     [self->ciContext startTaskToRender:ciimg
      // TODO: only render parts that have changed (when updating view,
      // put the rect to be redrawn into an array
@@ -167,27 +138,25 @@ BOOL rectsizeeq(CGRect* rect1, CGRect* rect2) {
     
     [buffer presentDrawable:self.currentDrawable];
     [buffer commit];
+    
+    [self setForceRedraw:false];
 }
 
-- (void)drawUI:(CGRect)rect {
-    olivec_fill(self->canvas, 0xFF000000); // clear screen
-    renderApp(self->canvas, self->root, (arRect){rect.origin.x, rect.origin.y, rect.size.width, rect.size.height});
+/// Retuns whether screen should rerender
+- (BOOL)drawUI:(CGRect)rect {
+    renderApp(CGRectToArRect(rect), [self forceRedraw]);
+    return getDidViewChange();
 }
 
 - (void)handleTapFrom: (UITapGestureRecognizer*)recognizer {
     CGPoint touchPoint = [recognizer locationInView:self];
     
-    int index = touchedNavViewIndex(
-        self->navViewData,
-        CGRectToArRect(self->previousRect),
-        (arPoint){touchPoint.x * self->scaleFactor, touchPoint.y * self->scaleFactor});
+    NSLog(@"Touch at %@", NSStringFromCGPoint(touchPoint));
     
-    if (index == -1) return;
-    
-    *self->selectedNavItem = index;
-    
-    [self drawUI:self->previousRect];
-    [self setNeedsDisplay];
+    handleNavViewTouch((arPoint){
+        touchPoint.x * self->scaleFactor,
+        touchPoint.y * self->scaleFactor,
+    });
 }
 
 @end
