@@ -10,7 +10,7 @@
 #include <olive.c>
 
 void createRootView(
-    arView** root, float** mapZoomLevel, int** navSize, int** selectedNav,
+    arView** root, float** mapZoomLevel, arPoint** mapZoomMid, int** navSize, int** selectedNav,
     NavViewData** navViewData,
     const MapRenderObjects* objs, const struct hashmap** mapnodes);
 

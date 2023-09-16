@@ -48,6 +48,7 @@ void initAppState(void) {
   createRootView(
     &appState.rootView,
     &appState.mapViewLevel,
+    &appState.mapScaleMid,
     &appState.navSize,
     &appState.selectedNavItem,
     &appState.navViewData,
@@ -107,6 +108,14 @@ void setMapScale(float scale) {
   capMapScale(appState.mapViewLevel);
 }
 
+void setMapMid(arPoint point) {
+  *appState.mapScaleMid = point;
+}
+
 void setShouldRerender(void) {
   appState.shouldRerender = true;
+}
+
+bool isViewMapView(void) {
+  return appState.selectedNavItem == 0;
 }

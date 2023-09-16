@@ -45,6 +45,10 @@
         initWithTarget:self
                 action:@selector(handlePinchGesture:)];
     [self addGestureRecognizer:pgr];
+    
+    UIPanGestureRecognizer* pangr = [[UIPanGestureRecognizer alloc]
+        initWithTarget:self
+                action:@selector(handlePanGesture:)];
 }
 
 - (id)init {
@@ -166,7 +170,7 @@
 }
 
 - (void)handlePinchGesture:(UIPinchGestureRecognizer*)pinchGesture {
-    
+    if (!isViewMapView()) return;
     
     if([pinchGesture state] == UIGestureRecognizerStateBegan) {
         self->prevScale = 1.0;
@@ -176,14 +180,9 @@
             CGPoint mid;
             mid.x = ((touch2.x - touch1.x) / 2) + touch1.x;
             mid.y = ((touch2.y - touch1.y) / 2) + touch1.y;
-            CGSize imageViewSize = self.frame.size;
-            CGPoint anchor;
-            anchor.x = mid.x / imageViewSize.width;
-            anchor.y = mid.y / imageViewSize.height;
-            self.layer.anchorPoint = anchor;
+            setMapMid((arPoint){mid.x, mid.y});
         }
     }
-
     
     CGFloat scale;
     if (self->prevScale < [pinchGesture scale]) {
@@ -198,6 +197,22 @@
     if ([pinchGesture state] == UIGestureRecognizerStateEnded) {
         self->prevScale = 1.0;
     }
+}
+
+- (void)handlePanGesture:(UIPanGestureRecognizer*)panGesture {
+    CGPoint translation = [panGesture translationInView:self];
+    
+    switch ([panGesture state]) {
+        case UIGestureRecognizerStateBegan:
+            self->prevTranslation = CGPointMake(1, 1);
+            //@fallthrough
+        case UIGestureRecognizerStateChanged:
+            panMap((arPoint){translation.x, translation.y});
+            break;
+        default: break;
+    }
+    
+    
 }
 
 @end

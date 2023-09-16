@@ -9,7 +9,7 @@
 void createRootView(
   arView** root,
   // output data
-  float** mapZoomLevel, int** navSize, int** selectedNav,
+  float** mapZoomLevel, arPoint** mapZoomMid, int** navSize, int** selectedNav,
   NavViewData** navViewDataOut,
   // input data
   const MapRenderObjects* objs, const struct hashmap** mapnodes)
@@ -21,6 +21,8 @@ void createRootView(
   mapViewData->mapnodes = mapnodes;
   mapViewData->objs = objs;
   mapViewData->zoomLevel = 1;
+  mapViewData->mapScaleMid = (arPoint){-1, -1}; // should be set before zooming
+  *mapZoomMid = &mapViewData->mapScaleMid;
   arView* mapView = createMapView(mapViewData);
 
   *mapZoomLevel = &mapViewData->zoomLevel;
@@ -38,7 +40,6 @@ void createRootView(
 
   *selectedNav = &navViewData->selectedView;
   *navSize = &navViewData->navSize;
-
 
   // Leaderboard
   UniformListViewData* scoreboardViewData = al_alloc(arAllocator, sizeof(UniformListViewData));

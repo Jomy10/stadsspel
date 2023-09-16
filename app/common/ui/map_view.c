@@ -15,13 +15,13 @@
 
 #define err printf
 
-void renderStreets(Olivec_Canvas* canvas, int renX, int renY, int renW, int renH, float zoomLevel, const MapRenderObjects *objs, const struct hashmap *mapnodes);
+void renderStreets(Olivec_Canvas* canvas, int renX, int renY, int renW, int renH, float zoomLevel, arPoint zoomMid, const MapRenderObjects *objs, const struct hashmap *mapnodes);
 void renderStreet(Olivec_Canvas* canvas, const arPoint *points, int pointsCount, const char *kind);
 
 void renderMapView(arView* self, Olivec_Canvas* canvas, arRect bounds) {
   const MapViewData* data = self->data;
 
-  renderStreets(canvas, bounds.x, bounds.y, bounds.w, bounds.h, data->zoomLevel, data->objs, *data->mapnodes);
+  renderStreets(canvas, bounds.x, bounds.y, bounds.w, bounds.h, data->zoomLevel, data->mapScaleMid, data->objs, *data->mapnodes);
 }
 
 arView* createMapView(MapViewData* data) {
@@ -32,19 +32,18 @@ arView* createMapView(MapViewData* data) {
   return view;
 }
 
-void renderStreets(Olivec_Canvas* canvas, int renX, int renY, int renW, int renH, float zoomLevel, const MapRenderObjects *objs, const struct hashmap *mapnodes) {
+void renderStreets(Olivec_Canvas* canvas, int renX, int renY, int renW, int renH, float zoomLevel, arPoint zoomMid, const MapRenderObjects *objs, const struct hashmap *mapnodes) {
   if (objs == null || mapnodes == null) {
     printf("couldn't load map view %p %p\n", objs, mapnodes);
     olivec_fill(*canvas, 0xFF000bFF);
     return;
   }
 
-  // 0 0 1170 2132 > 0 -1066 1170 2132
   arRect frame = {renX, renY, renW, renH};
   frame.w *= zoomLevel;
   frame.h *= zoomLevel;
-  frame.x += (renW - frame.w) / 2;
-  frame.y += (renH - frame.h) / 2;
+  frame.x += (renW - frame.w) / 2 + ((renW / 2) - (zoomMid.x == -1 ? (renW / 2) : zoomMid.x));
+  frame.y += (renH - frame.h) / 2 + ((renH / 2) - (zoomMid.y == -1 ? (renH / 2) : zoomMid.y));
 
 //  printf("[renderStreets] Drawing map view in %i %i %i %i\n", renX, renY, renW, renH);
   Vec(arPoint) points = createVec(arPoint, 100);

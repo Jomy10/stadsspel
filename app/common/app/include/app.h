@@ -27,6 +27,8 @@ struct AppState {
   /// min scale of the map
   float minMapCap;
   float maxMapCap;
+  /// The middle point of the scale action
+  arPoint* mapScaleMid;
 
   // UI State
   float* mapViewLevel;
@@ -64,6 +66,10 @@ void scaleMap(float);
 
 void setMapScale(float);
 
+void setMapMid(arPoint);
+
 void setShouldRerender(void);
+
+bool isViewMapView(void);
 
 #endif

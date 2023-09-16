@@ -28,6 +28,7 @@
     CIContext* ciContext;
     
     CGFloat prevScale;
+    CGPoint prevTranslation;
 }
 
 @property BOOL forceRedraw;
