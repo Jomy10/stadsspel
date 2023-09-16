@@ -16,31 +16,16 @@ def get_platform_flags(platform)
     when 'macos'
       sdk_root = `xcrun --sdk macosx --show-sdk-path`.gsub("\n", "")
       return "-mmacosx-version-min=#{MACOS_VERSION} " +
-      # -isysroot
         "-isysroot #{sdk_root} "
-        # "-syslibroot #{sdk_root}"
     when 'iossim'
       sdk_root = `xcrun --sdk iphonesimulator --show-sdk-path`.gsub("\n", "")
-      return "-march x86-64 " +
-        # "-mcpu=x86_64 " +
-        # "-sys=ios " +
-        #"-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk " +
-        # "--host=i386-apple-darwin_sim " +
+      return "-arch x86_64 " +
         "-mios-simulator-version-min=#{IOS_VERSION} " +
         "-isysroot #{sdk_root} "
-        # "-syslibroot #{sdk_root} "
-        #"-Fdeps/SDL/XCode/SDL/"
-    # when 'iossimarm'
-    #   sdk_root = `xcrun --sdk iphonesimulator --show-sdk-path`.gsub("\n", "")
-    #   return "-arch arm64 " +
-    #     "-isysroot #{sdk_root} " +
-    #     "-mios-version-min=#{IOS_VERSION}"
     when 'ios'
       sdk_root = `xcrun --sdk iphoneos --show-sdk-path`.gsub("\n", "")
       return "-arch arm64 " +
-        #"-mcpu=cortex-a8 -marm " +
         "-isysroot #{sdk_root} " +
-        # "-syslibroot #{sdk_root} " +
         "-mios-version-min=#{IOS_VERSION} "
     when 'android'
       androidflags = "-ffunction-sections -fdata-sections -DANDROID -DAPPNAME=\"stadsspel\" " +

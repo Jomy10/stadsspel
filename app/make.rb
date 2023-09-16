@@ -38,6 +38,8 @@ if !(valid_platforms.include? PLATFORM)
   exit -1;
 end
 
+DEPLOYMENT=(ENV["DEPLOYMENT"]||"TST").upcase
+
 CC=get_cc(PLATFORM)
 ZIGCC=ENV['ZIGCC']||'zig'
 CFLAGS=""
@@ -86,6 +88,7 @@ def_lib("vec", "common/vec", include: [INCLUDE_OUT])
 def_lib("app", "common/app", include: [INCLUDE_OUT]);
 def_lib("ui", "common/ui", include: [INCLUDE_OUT])
 def_lib("arena", "common/arena", include: [INCLUDE_OUT])
+def_lib("server_glue", "common/server-glue/#{DEPLOYMENT.downcase}", include_sub_dir: "../include")
 
 # Dependencies
 def_lib("mercator", "deps/mercator", include_sub_dir: "", includes_overwrite: ["mercator.h"])
@@ -117,6 +120,7 @@ def_xcframework("vec")
 # def_xcframework("app");
 # def_xcframework("ui")
 def_xcframework("arena")
+def_xcframework("server_glue")
 #== End Define build steps ==#
 
 #== commands ==#
@@ -137,6 +141,7 @@ cmd :build do
     :app => :build_app,
     :ui => :build_ui,
     :arena => :build_arena,
+    :server_glue => :build_server_glue
   }
   # Determine commands to run
   if ((ARGV.size < 2) || (ARGV[1].to_sym == :all))
@@ -202,7 +207,7 @@ cmd :build_xcframeworks do
   [
     "o5mreader", "hashmap", "map_data",
     "mercator", "render_objects", "util",
-    "vec", "arena"
+    "vec", "arena", "server_glue"
   ]
     .each { |n|
       puts "building framework #{n}".blue

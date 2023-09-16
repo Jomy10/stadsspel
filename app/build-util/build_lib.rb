@@ -27,8 +27,6 @@ def def_lib(name, path, include_sub_dir: "include", warn: WARN, include: [], inc
       "#{$file} " +
       # Output
       "-o #{File.join(OBJ_OUT, name, $file.name + ".o")} "
-      # Libraries
-      # "#{link.size > 0 ? "-L#{LIB_OUT}" : ""} #{link.map { |d| "-l#{d}" }.join " "} "
   end
 
   cmd "build_#{name}__lib".to_sym, all(File.join(OBJ_OUT, name, "*.o")) do

@@ -16,8 +16,7 @@ pub fn build(b: *std.Build) void {
     std.debug.print("Building for optimization level: {}\n", .{optimize});
     std.debug.print("Building for {any} {any}\n", .{ target.cpu_arch, target.os_tag });
 
-    // const darwin = builtin.os.isDarwin();
-    const darwin = target.os_tag.?.isDarwin();
+    const darwin = if (target.os_tag) |tag| tag.isDarwin() else false;
     const android = (target.abi orelse .none) == .android;
 
     var android_sdk: *AndroidSdk = undefined;

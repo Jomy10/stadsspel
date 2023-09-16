@@ -19,11 +19,6 @@
 
 #define BYTES_PER_COMPONENT 4
 
-BOOL rectsizeeq(CGRect* rect1, CGRect* rect2) {
-    return rect1->size.width == rect2->size.width
-        && rect1->size.height == rect2->size.height;
-}
-
 @implementation OliveView
 
 - (void)commonInit {
@@ -38,12 +33,18 @@ BOOL rectsizeeq(CGRect* rect1, CGRect* rect2) {
     // this allows us to render into the view's drawable
     self.framebufferOnly = false;
 
-    NSLog(@"Created new OliveView: %@\n", self);
-
-    UITapGestureRecognizer* tgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapFrom:)];
-
+    // User interaction
+    [self setUserInteractionEnabled:YES];
+    
+    UITapGestureRecognizer* tgr = [[UITapGestureRecognizer alloc]
+        initWithTarget:self
+                action:@selector(handleTapFrom:)];
     [self addGestureRecognizer:tgr];
-    [self setTapGestureRecognizer:tgr];
+ 
+    UIPinchGestureRecognizer* pgr = [[UIPinchGestureRecognizer alloc]
+        initWithTarget:self
+                action:@selector(handlePinchGesture:)];
+    [self addGestureRecognizer:pgr];
 }
 
 - (id)init {
@@ -157,6 +158,46 @@ BOOL rectsizeeq(CGRect* rect1, CGRect* rect2) {
         touchPoint.x * self->scaleFactor,
         touchPoint.y * self->scaleFactor,
     });
+}
+
+- (void)setShouldRerender {
+    setShouldRerender();
+    [self setNeedsDisplay];
+}
+
+- (void)handlePinchGesture:(UIPinchGestureRecognizer*)pinchGesture {
+    
+    
+    if([pinchGesture state] == UIGestureRecognizerStateBegan) {
+        self->prevScale = 1.0;
+        if ([pinchGesture numberOfTouches] >= 2) { //should always be true when using a PinchGR
+            CGPoint touch1 = [pinchGesture locationOfTouch:0 inView:self];
+            CGPoint touch2 = [pinchGesture locationOfTouch:1 inView:self];
+            CGPoint mid;
+            mid.x = ((touch2.x - touch1.x) / 2) + touch1.x;
+            mid.y = ((touch2.y - touch1.y) / 2) + touch1.y;
+            CGSize imageViewSize = self.frame.size;
+            CGPoint anchor;
+            anchor.x = mid.x / imageViewSize.width;
+            anchor.y = mid.y / imageViewSize.height;
+            self.layer.anchorPoint = anchor;
+        }
+    }
+
+    
+    CGFloat scale;
+    if (self->prevScale < [pinchGesture scale]) {
+        scale = 1.0 - (self->prevScale - [pinchGesture scale]);
+    } else {
+        scale = -1.0 + ([pinchGesture scale] - self->prevScale);
+    }
+    
+    scaleMap(scale);
+    [self setShouldRerender];
+    
+    if ([pinchGesture state] == UIGestureRecognizerStateEnded) {
+        self->prevScale = 1.0;
+    }
 }
 
 @end

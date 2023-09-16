@@ -26,9 +26,10 @@
     // Metal
     id<MTLCommandQueue> commandQueue;
     CIContext* ciContext;
+    
+    CGFloat prevScale;
 }
 
-@property UITapGestureRecognizer* tapGestureRecognizer;
 @property BOOL forceRedraw;
 
 @end

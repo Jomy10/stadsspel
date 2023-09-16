@@ -29,7 +29,6 @@
 		08996CCD2AAA275C008DBB1F /* bufferReallocator.c in Sources */ = {isa = PBXBuildFile; fileRef = 08996CCC2AAA275C008DBB1F /* bufferReallocator.c */; };
 		08996D162AAB7F58008DBB1F /* arena.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08996D152AAB7F58008DBB1F /* arena.xcframework */; };
 		08996D172AAB7F62008DBB1F /* arena.xcframework in embed frameworks */ = {isa = PBXBuildFile; fileRef = 08996D152AAB7F58008DBB1F /* arena.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		08996D222AABB855008DBB1F /* scoreboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 08996D192AABB855008DBB1F /* scoreboard.c */; };
 		08996D232AABB855008DBB1F /* root_ui.c in Sources */ = {isa = PBXBuildFile; fileRef = 08996D1F2AABB855008DBB1F /* root_ui.c */; };
 		08996D242AABB855008DBB1F /* map.c in Sources */ = {isa = PBXBuildFile; fileRef = 08996D202AABB855008DBB1F /* map.c */; };
 		08996D252AABB855008DBB1F /* app.c in Sources */ = {isa = PBXBuildFile; fileRef = 08996D212AABB855008DBB1F /* app.c */; };
@@ -676,11 +675,9 @@
 		08996CCB2AAA275C008DBB1F /* bufferReallocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bufferReallocator.h; sourceTree = "<group>"; };
 		08996CCC2AAA275C008DBB1F /* bufferReallocator.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = bufferReallocator.c; sourceTree = "<group>"; };
 		08996D152AAB7F58008DBB1F /* arena.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = arena.xcframework; sourceTree = "<group>"; };
-		08996D192AABB855008DBB1F /* scoreboard.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = scoreboard.c; sourceTree = "<group>"; };
 		08996D1B2AABB855008DBB1F /* root_ui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = root_ui.h; sourceTree = "<group>"; };
 		08996D1C2AABB855008DBB1F /* map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = map.h; sourceTree = "<group>"; };
 		08996D1D2AABB855008DBB1F /* app.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = app.h; sourceTree = "<group>"; tabWidth = 2; };
-		08996D1E2AABB855008DBB1F /* scoreboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scoreboard.h; sourceTree = "<group>"; };
 		08996D1F2AABB855008DBB1F /* root_ui.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = root_ui.c; sourceTree = "<group>"; tabWidth = 2; };
 		08996D202AABB855008DBB1F /* map.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = map.c; sourceTree = "<group>"; };
 		08996D212AABB855008DBB1F /* app.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = app.c; sourceTree = "<group>"; tabWidth = 2; };
@@ -3269,7 +3266,6 @@
 				08996D202AABB855008DBB1F /* map.c */,
 				08996D212AABB855008DBB1F /* app.c */,
 				08996CCC2AAA275C008DBB1F /* bufferReallocator.c */,
-				08996D192AABB855008DBB1F /* scoreboard.c */,
 				08117DA42AB0FB2A0016F985 /* login.c */,
 			);
 			name = app;
@@ -3283,7 +3279,6 @@
 				08996D1C2AABB855008DBB1F /* map.h */,
 				08996D1D2AABB855008DBB1F /* app.h */,
 				08996CCB2AAA275C008DBB1F /* bufferReallocator.h */,
-				08996D1E2AABB855008DBB1F /* scoreboard.h */,
 				08117DA32AB0FB2A0016F985 /* login.h */,
 			);
 			path = include;
@@ -3435,7 +3430,6 @@
 				085DF5232AA117A7001CC9CC /* AppDelegate.m in Sources */,
 				085DF5242AA117A9001CC9CC /* SceneDelegate.h in Sources */,
 				08996CCD2AAA275C008DBB1F /* bufferReallocator.c in Sources */,
-				08996D222AABB855008DBB1F /* scoreboard.c in Sources */,
 				08849F282AABBB1900024D0F /* map_view.c in Sources */,
 				085DF5252AA117AC001CC9CC /* SceneDelegate.m in Sources */,
 				085DF5262AA117AF001CC9CC /* ViewController.h in Sources */,

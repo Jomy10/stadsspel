@@ -2,7 +2,7 @@ const std = @import("std");
 const builtin = @import("builtin");
 const Builder = std.build.Builder;
 
-const Sdk = @import("../Sdk.zig");
+const Sdk = @import("Sdk.zig");
 const UserConfig = Sdk.UserConfig;
 
 // This config stores tool paths for the current machine

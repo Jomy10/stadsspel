@@ -38,7 +38,14 @@ void renderStreets(Olivec_Canvas* canvas, int renX, int renY, int renW, int renH
     olivec_fill(*canvas, 0xFF000bFF);
     return;
   }
-  
+
+  // 0 0 1170 2132 > 0 -1066 1170 2132
+  arRect frame = {renX, renY, renW, renH};
+  frame.w *= zoomLevel;
+  frame.h *= zoomLevel;
+  frame.x += (renW - frame.w) / 2;
+  frame.y += (renH - frame.h) / 2;
+
 //  printf("[renderStreets] Drawing map view in %i %i %i %i\n", renX, renY, renW, renH);
   Vec(arPoint) points = createVec(arPoint, 100);
   arPoint point;
@@ -57,7 +64,6 @@ void renderStreets(Olivec_Canvas* canvas, int renX, int renY, int renW, int renH
 
     for (size_t nodeIdx = 0; nodeIdx < nodeidsCount; nodeIdx++) {
       node = (MapNode *)hashmap_get((struct hashmap *)mapnodes, &(MapNode){.id = nodeids[nodeIdx]});
-      // node = hasmap_get(objs, nodeids[nodeIdx]);
       if (node == null) {
         err("Node not found %llu\n", nodeids[nodeIdx]);
         continue;
@@ -67,8 +73,8 @@ void renderStreets(Olivec_Canvas* canvas, int renX, int renY, int renW, int renH
       assert(node->y >= 0 && node->y <= 1);
 
       point = (arPoint){
-          .x = renX + node->x * renW * zoomLevel,
-          .y = renY + node->y * renH * zoomLevel,
+          .x = frame.x /*- (frame.x - renX) */+ node->x * frame.w, // renW * zoomLevel,
+          .y = frame.y /*- (frame.y - renY) */+ node->y * frame.h, // renH * zoomLevel,
       };
 
       assert(!isnan(point.x));
@@ -85,13 +91,12 @@ void renderStreets(Olivec_Canvas* canvas, int renX, int renY, int renW, int renH
 }
 
 void renderStreet(Olivec_Canvas* canvas, const arPoint *points, int pointsCount, __attribute__((unused)) const char *kind) {
-  // gDrawLines(gRenderer, points, pointsCount, null);
   for (int i = 1; i < pointsCount; i++) {
     olivec_line(*canvas, points[i].x, points[i].y, points[i-1].x, points[i-1].y, CMAP_MAIN);
   }
 }
 
-static void renderMapViewNavItem(struct _arView* self, Olivec_Canvas* canvas, arRect bounds) {
+static void renderMapViewNavItem(__attribute__((unused)) struct _arView* self, Olivec_Canvas* canvas, arRect bounds) {
   olivec_rect(*canvas, bounds.x, bounds.y, bounds.w, bounds.h, 0xFF00FF00);
 }
 

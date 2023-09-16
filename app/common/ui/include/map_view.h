@@ -18,4 +18,6 @@ arView* createMapView(MapViewData* data);
 
 arView* createMapViewNavItem(void);
 
+// void mapView_zoom(MapViewData* data, float scaleFactor);
+
 #endif

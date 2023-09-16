@@ -6,6 +6,7 @@
 //
 
 #include "include/scoreboard.h"
+
 #define OLIVEC_IMPLEMENTATION
 #include <olive.c>
 

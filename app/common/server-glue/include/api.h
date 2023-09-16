@@ -1,5 +1,5 @@
-#ifndef _SCOREBOARD_H
-#define _SCOREBOARD_H
+#ifndef _APP_API_H
+#define _APP_API_H
 
 struct Team {
   char* name;
@@ -10,7 +10,6 @@ struct Scoreboard {
   struct Team* teams;
 };
 
-// TODO: API call
-struct Scoreboard* getScoreboard();
+struct Scoreboard* fetchScoreboard(void);
 
 #endif

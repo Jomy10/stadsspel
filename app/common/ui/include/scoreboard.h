@@ -9,6 +9,7 @@
 #define scoreboard_nav_item_h
 
 #include "view.h"
+#include <server_glue/api.h>
 
 typedef struct {
     int rang;

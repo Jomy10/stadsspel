@@ -3,8 +3,8 @@
 #include <ui/map_view.h>
 #include <ui/nav_view.h>
 #include <ui/list_view.h>
-#include <ui/scoreboard.h>
 #include <ui/background_view.h>
+#include <ui/scoreboard.h>
 
 void createRootView(
   arView** root,

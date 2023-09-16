@@ -24,15 +24,21 @@ struct AppState {
   Allocator* uiAllocator;
   arRect previousRect;
   Olivec_Canvas canvas;
-  
+  /// min scale of the map
+  float minMapCap;
+  float maxMapCap;
+
   // UI State
   float* mapViewLevel;
   int* navSize;
   int* selectedNavItem;
   NavViewData* navViewData;
-  
+
   /// Should the native renderer render the view?
   bool viewChanged;
+
+  /// Should the app rerender
+  bool shouldRerender;
 };
 
 /// Returns true if the UI has rerendered
@@ -53,5 +59,11 @@ unsigned char* getViewBitmap(void);
 arRect getPreviousFrame(void);
 
 bool getDidViewChange(void);
+
+void scaleMap(float);
+
+void setMapScale(float);
+
+void setShouldRerender(void);
 
 #endif
