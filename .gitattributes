@@ -1,0 +1,4 @@
+app/androrid/android_native_app_glue.* linguist-vendored
+app/android/android_usb_devices.* linguist-vendored
+app/common/Sdk.zig linguist-vendored
+app/common/auto-detect.zig linguist-vendored

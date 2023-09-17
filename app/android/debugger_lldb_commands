@@ -1,5 +1,0 @@
-
-platform select remote-android
-platform connect connect://emulator-5554:8006
-attach 28631
-
