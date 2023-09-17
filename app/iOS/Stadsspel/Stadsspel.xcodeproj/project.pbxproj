@@ -13,6 +13,7 @@
 		08117D9C2AACFF630016F985 /* background_view.c in Sources */ = {isa = PBXBuildFile; fileRef = 08117D9B2AACFF630016F985 /* background_view.c */; };
 		08117DA52AB0FB2A0016F985 /* login.c in Sources */ = {isa = PBXBuildFile; fileRef = 08117DA42AB0FB2A0016F985 /* login.c */; };
 		08117DA72AB37EC10016F985 /* ios_util.m in Sources */ = {isa = PBXBuildFile; fileRef = 08117DA62AB37EC10016F985 /* ios_util.m */; };
+		083E8B712AB72C71007B094A /* thick_line.c in Sources */ = {isa = PBXBuildFile; fileRef = 083E8B702AB72C70007B094A /* thick_line.c */; };
 		085DF5222AA117A5001CC9CC /* AppDelegate.h in Sources */ = {isa = PBXBuildFile; fileRef = 085DE1332AA1131C001CC9CC /* AppDelegate.h */; };
 		085DF5232AA117A7001CC9CC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 085DE1342AA1131C001CC9CC /* AppDelegate.m */; };
 		085DF5242AA117A9001CC9CC /* SceneDelegate.h in Sources */ = {isa = PBXBuildFile; fileRef = 085DE1362AA1131C001CC9CC /* SceneDelegate.h */; };
@@ -121,6 +122,8 @@
 		08117DA42AB0FB2A0016F985 /* login.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = login.c; sourceTree = "<group>"; };
 		08117DA62AB37EC10016F985 /* ios_util.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ios_util.m; sourceTree = "<group>"; };
 		08117DA82AB37ED20016F985 /* ios_util.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ios_util.h; sourceTree = "<group>"; };
+		083E8B702AB72C70007B094A /* thick_line.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = thick_line.c; sourceTree = "<group>"; };
+		083E8B722AB72C86007B094A /* thick_line.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = thick_line.h; sourceTree = "<group>"; };
 		085DE1302AA1131C001CC9CC /* Stadsspel.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Stadsspel.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		085DE1332AA1131C001CC9CC /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		085DE1342AA1131C001CC9CC /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -3232,6 +3235,7 @@
 			children = (
 				08849EDD2AABBB1800024D0F /* include */,
 				08849EE22AABBB1800024D0F /* coordinate_transform.c */,
+				083E8B702AB72C70007B094A /* thick_line.c */,
 				08849EE32AABBB1800024D0F /* view.c */,
 				08849EDC2AABBB1800024D0F /* map_view.c */,
 				08117D922AAC4B390016F985 /* nav_view.c */,
@@ -3247,6 +3251,7 @@
 			isa = PBXGroup;
 			children = (
 				08849EDE2AABBB1800024D0F /* coordinate_transform.h */,
+				083E8B722AB72C86007B094A /* thick_line.h */,
 				08849EDF2AABBB1800024D0F /* color.h */,
 				08849EE02AABBB1800024D0F /* view.h */,
 				08849EE12AABBB1800024D0F /* map_view.h */,
@@ -3422,6 +3427,7 @@
 				08117D9C2AACFF630016F985 /* background_view.c in Sources */,
 				08117D962AAC61100016F985 /* list_view.c in Sources */,
 				08996D242AABB855008DBB1F /* map.c in Sources */,
+				083E8B712AB72C71007B094A /* thick_line.c in Sources */,
 				08CA05182AA9A67800A94043 /* OliveView.m in Sources */,
 				08849F2A2AABBB1900024D0F /* view.c in Sources */,
 				085DF5222AA117A5001CC9CC /* AppDelegate.h in Sources */,

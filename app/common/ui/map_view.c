@@ -2,6 +2,8 @@
 #include "include/color.h"
 #include "include/coordinate_transform.h"
 #include "include/view.h"
+#include "include/thick_line.h"
+#include <stdint.h>
 #include <vec/vec.h>
 #include <map_data/render_objects.h>
 #include <hashmap.h>
@@ -9,6 +11,7 @@
 #include <util/types.h>
 #include <stdio.h>
 #include <assert.h>
+#include <math.h>
 
 #define OLIVEC_IMPLEMENTATION
 #include <olive.c>
@@ -95,27 +98,30 @@ void renderStreet(Olivec_Canvas* canvas, const arPoint *points, int pointsCount,
   }
 }
 
-static void renderMapViewNavItem(__attribute__((unused)) struct _arView* self, Olivec_Canvas* canvas, arRect bounds) {
-  olivec_rect(*canvas, bounds.x, bounds.y, bounds.w, bounds.h, 0xFF00FF00);
-  int margin = bounds.w / 10;
+static void renderMapViewNavItem(__attribute__((unused)) struct _arView* self, Olivec_Canvas* canvas) {
+  olivec_fill(*canvas, 0xFF00FF00);
+  //olivec_rect(*canvas, bounds.x, bounds.y, bounds.w, bounds.h, 0xFF00FF00);
+  int margin = canvas->width / 7;
 
-  int xstart = bounds.x + margin;
-  int xsize = bounds.w - margin * 2;
-  int xend = bounds.x + xsize;
+  const int xstart = margin;
+  const int xsize = canvas->width - (margin * 2);
+  const int xend = xstart + xsize;
 
-  int ystart = bounds.y + margin;
-  int ysize = bounds.h - margin * 2;
-  int yend = bounds.y + ysize;
+  const int ystart = margin;
+  const int ysize = canvas->height - (margin * 2);
+  const int yend = ystart + ysize;
 
-  printf("NavItemBounds: x = %i, y = %i, w = %i, h = %i\n", bounds.x, bounds.y, bounds.w, bounds.h);
-  printf("BoundsWithMargin: %i %i > %i %i\n", xstart, ystart, xend, yend);
-
-  olivec_rect(*canvas, xstart, ystart, xsize, ysize, CBLACK);
-
-  // olivec_line(*canvas, bounds.x + margin, bounds.y + marginy, bounds.x + margin, bounds.y + bounds.h - marginy, CBLACK);
-  // olivec_line(*canvas, bounds.x + bounds.w - marginx, bounds.y + marginy, bounds.x + bounds.w - marginx, bounds.y + bounds.h - marginy, CBLACK);
-
-  olivec_line(*canvas, xstart, ystart, xstart, yend, CWHITE);
+  const int thickness = 10;
+  const int ymarg = ysize / 5;
+  const int xsplit = xsize / 3;
+  thicc_line(*canvas, xstart, ystart, xstart, yend - ymarg, thickness, CWHITE);
+  thicc_line(*canvas, xstart, ystart, xstart + xsplit, ystart + ymarg, thickness, CWHITE);
+  thicc_line(*canvas, xstart + xsplit, ystart + ymarg, xstart + 2 * (xsplit), ystart, thickness, CWHITE);
+  thicc_line(*canvas, xstart + 2 * (xsplit), ystart, xstart + xsize, ystart + ymarg, thickness, CWHITE);
+  thicc_line(*canvas, xend, ystart + ymarg, xend, yend, thickness, CWHITE);
+  thicc_line(*canvas, xstart, yend - ymarg, xstart + xsplit, yend, thickness, CWHITE);
+  thicc_line(*canvas, xstart + xsplit, yend, xstart + 2*xsplit, yend - ymarg, thickness, CWHITE);
+  thicc_line(*canvas, xstart + 2 * xsplit, yend - ymarg, xstart + xsize, yend, thickness, CWHITE);
 }
 
 arView* createMapViewNavItem(void) {
