@@ -32,7 +32,7 @@ bool recteql(arRect* rect1, arRect* rect2);
 typedef struct _arView {
   VecA(arView*) subViews;
   void* data;
-  void(*render)(struct _arView* self, Olivec_Canvas* canvas, arRect bounds);
+  void(*render)(struct _arView* self, Olivec_Canvas* canvas);
 } arView;
 
 arView* createArView(void);

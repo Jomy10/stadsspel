@@ -17,7 +17,8 @@ bool renderApp(arRect frame, bool forceRerender) {
 
   // Clear screen
   olivec_fill(appState.canvas, 0xFF000000);
-  appState.rootView->render(appState.rootView, &appState.canvas, frame);
+  Olivec_Canvas subcanvas = olivec_subcanvas(appState.canvas, frame.x, frame.y, frame.w, frame.h);
+  appState.rootView->render(appState.rootView, &subcanvas);
 
   appState.viewChanged = true;
   appState.shouldRerender = false;
@@ -49,6 +50,7 @@ void initAppState(void) {
     &appState.rootView,
     &appState.mapViewLevel,
     &appState.mapScaleMid,
+    &appState.mapTranslation,
     &appState.navSize,
     &appState.selectedNavItem,
     &appState.navViewData,
@@ -117,5 +119,31 @@ void setShouldRerender(void) {
 }
 
 bool isViewMapView(void) {
-  return appState.selectedNavItem == 0;
+  return *appState.selectedNavItem == 0;
+}
+
+void capMapPan(arPoint* translation, arRect currentFrame) {
+  float wt = (float) currentFrame.w * *appState.mapViewLevel;
+  if (translation->x < currentFrame.x - wt)
+    translation->x = currentFrame.x - wt;
+  else if (translation->x > currentFrame.x + wt)
+    translation->x = currentFrame.x + wt;
+
+  float ht = (float) currentFrame.h * *appState.mapViewLevel;
+  if (translation->y < currentFrame.y - ht)
+    translation->y = currentFrame.y - ht;
+  else if (translation->y > currentFrame.y + ht)
+    translation->y = currentFrame.y + ht;
+}
+
+void panMap(arPoint translation, arRect currentFrame) {
+  appState.mapTranslation->x += translation.x;
+  appState.mapTranslation->y += translation.y;
+  capMapPan(appState.mapTranslation, currentFrame);
+}
+
+void resetMapView(void) {
+  *appState.mapTranslation = (arPoint){0, 0};
+  *appState.mapViewLevel = 1;
+  *appState.mapScaleMid = (arPoint){-1,-1};
 }

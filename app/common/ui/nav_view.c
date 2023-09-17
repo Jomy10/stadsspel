@@ -9,22 +9,27 @@
 
 #include <stdio.h>
 
-void renderNavView(struct _arView* self, Olivec_Canvas* canvas, arRect bounds) {
+#define OLIVEC_IMPLEMENTATION
+#include <olive.c>
+
+void renderNavView(struct _arView* self, Olivec_Canvas* canvas) {
   if (self->subViews == NULL) return;
-  
+
   const NavViewData* data = self->data;
-   
-  arRect contentBounds = {bounds.x, bounds.y, bounds.w, bounds.h - data->navSize};
- 
+
+  arRect contentBounds = {0, 0, canvas->width, canvas->height - data->navSize};
+  Olivec_Canvas contentCanvas = olivec_subcanvas(*canvas, contentBounds.x, contentBounds.y, contentBounds.w, contentBounds.h);
+
   arView* contentView = ((arView**)self->subViews->values)[data->selectedView];
   arView** navViews = data->navViews->values;
-  
+
   //printf("Rendering nav view content %i at (%i %i %i %i)\n", data->selectedView, contentBounds.x, contentBounds.y, contentBounds.w, contentBounds.h);
-  contentView->render(contentView, canvas, contentBounds);
-  int navWidth = bounds.w / self->subViews->size;
+  contentView->render(contentView, &contentCanvas);
+  int navWidth = canvas->width / self->subViews->size;
   for (int i = 0; i < self->subViews->size; i++) {
     //printf("Rendering nav item (%i %i %i %i)\n", bounds.x + i * navWidth, bounds.y + contentBounds.h, navWidth, data->navSize);
-    navViews[i]->render(navViews[i], canvas, (arRect){bounds.x + i * navWidth, bounds.y + contentBounds.h, navWidth, data->navSize});
+    Olivec_Canvas subcanvas = olivec_subcanvas(*canvas, i * navWidth, contentBounds.h, navWidth, data->navSize);
+    navViews[i]->render(navViews[i], &subcanvas);//, (arRect){bounds.x + i * navWidth, bounds.y + contentBounds.h, navWidth, data->navSize});
   }
 }
 
@@ -51,6 +56,6 @@ int navview_touchedNavViewIndex(NavViewData* data, arRect viewBounds, arPoint po
       }
     }
   }
-  
+
   return -1;
 }

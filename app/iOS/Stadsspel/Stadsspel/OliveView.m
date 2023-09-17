@@ -18,6 +18,7 @@
 #include <olive.c>
 
 #define BYTES_PER_COMPONENT 4
+#define GESTURE_SCALE 0.5
 
 @implementation OliveView
 
@@ -38,7 +39,7 @@
     
     UITapGestureRecognizer* tgr = [[UITapGestureRecognizer alloc]
         initWithTarget:self
-                action:@selector(handleTapFrom:)];
+                action:@selector(handleTapGesture:)];
     [self addGestureRecognizer:tgr];
  
     UIPinchGestureRecognizer* pgr = [[UIPinchGestureRecognizer alloc]
@@ -49,6 +50,7 @@
     UIPanGestureRecognizer* pangr = [[UIPanGestureRecognizer alloc]
         initWithTarget:self
                 action:@selector(handlePanGesture:)];
+    [self addGestureRecognizer:pangr];
 }
 
 - (id)init {
@@ -153,20 +155,22 @@
     return getDidViewChange();
 }
 
-- (void)handleTapFrom: (UITapGestureRecognizer*)recognizer {
-    CGPoint touchPoint = [recognizer locationInView:self];
-    
-    NSLog(@"Touch at %@", NSStringFromCGPoint(touchPoint));
+- (void)setShouldRerender {
+    setShouldRerender();
+    [self setNeedsDisplay];
+}
+- (void)handleTapGesture: (UITapGestureRecognizer*)tapGesture {
+    CGPoint touchPoint = [tapGesture locationInView:self];
     
     handleNavViewTouch((arPoint){
         touchPoint.x * self->scaleFactor,
         touchPoint.y * self->scaleFactor,
     });
-}
-
-- (void)setShouldRerender {
-    setShouldRerender();
-    [self setNeedsDisplay];
+    
+    if (isViewMapView() && [tapGesture numberOfTouches] >= 3) {
+        resetMapView();
+        [self setShouldRerender];
+    }
 }
 
 - (void)handlePinchGesture:(UIPinchGestureRecognizer*)pinchGesture {
@@ -191,28 +195,36 @@
         scale = -1.0 + ([pinchGesture scale] - self->prevScale);
     }
     
-    scaleMap(scale);
+    scaleMap(scale * GESTURE_SCALE);
     [self setShouldRerender];
-    
-    if ([pinchGesture state] == UIGestureRecognizerStateEnded) {
-        self->prevScale = 1.0;
-    }
 }
 
 - (void)handlePanGesture:(UIPanGestureRecognizer*)panGesture {
-    CGPoint translation = [panGesture translationInView:self];
+    if (!isViewMapView()) return;
     
+    CGPoint translation = [panGesture translationInView:self];
+    CGRect frame = [self frame];
+    arRect currentUIFrame = (arRect){
+        frame.origin.x * self->scaleFactor,
+        frame.origin.y * self->scaleFactor,
+        frame.size.width * self->scaleFactor,
+        frame.size.height * self->scaleFactor};
+   
+    // TODO: animate when stopped dragging
     switch ([panGesture state]) {
         case UIGestureRecognizerStateBegan:
             self->prevTranslation = CGPointMake(1, 1);
             //@fallthrough
         case UIGestureRecognizerStateChanged:
-            panMap((arPoint){translation.x, translation.y});
+            panMap((arPoint){
+                    translation.x * GESTURE_SCALE,
+                    translation.y * GESTURE_SCALE},
+                currentUIFrame);
+            [self setShouldRerender];
+            self->prevTranslation = translation;
             break;
         default: break;
     }
-    
-    
 }
 
 @end

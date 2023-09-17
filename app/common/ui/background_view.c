@@ -13,15 +13,15 @@
 
 #include <stdio.h>
 
-void renderBackgroundFill(arView* view, Olivec_Canvas* canvas, arRect rect) {
+void renderBackgroundFill(arView* view, Olivec_Canvas* canvas) {
   BackgroundFillViewData* data = view->data;
   //printf("Rendering backoung with color %#08x\n", data->fillColor);
-  
-  olivec_rect(*canvas, rect.x, rect.y, rect.w, rect.h, data->fillColor);
-  
+
+  olivec_rect(*canvas, 0, 0, canvas->width, canvas->height, data->fillColor);
+
   assert(view->subViews->size == 1);
   arView* subview = ((arView**)view->subViews->values)[0];
-  subview->render(subview, canvas, rect);
+  subview->render(subview, canvas);
 }
 
 arView* createBackgroundFillView(BackgroundFillViewData* data, arView* subview) {
@@ -32,4 +32,3 @@ arView* createBackgroundFillView(BackgroundFillViewData* data, arView* subview) 
   view->render = &renderBackgroundFill;
   return view;
 }
-

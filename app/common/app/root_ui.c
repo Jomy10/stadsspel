@@ -9,7 +9,7 @@
 void createRootView(
   arView** root,
   // output data
-  float** mapZoomLevel, arPoint** mapZoomMid, int** navSize, int** selectedNav,
+  float** mapZoomLevel, arPoint** mapZoomMid, arPoint** mapTranslation, int** navSize, int** selectedNav,
   NavViewData** navViewDataOut,
   // input data
   const MapRenderObjects* objs, const struct hashmap** mapnodes)
@@ -23,6 +23,8 @@ void createRootView(
   mapViewData->zoomLevel = 1;
   mapViewData->mapScaleMid = (arPoint){-1, -1}; // should be set before zooming
   *mapZoomMid = &mapViewData->mapScaleMid;
+  mapViewData->mapTranslation = (arPoint){0, 0};
+  *mapTranslation = &mapViewData->mapTranslation;
   arView* mapView = createMapView(mapViewData);
 
   *mapZoomLevel = &mapViewData->zoomLevel;

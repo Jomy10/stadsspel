@@ -13,6 +13,7 @@ typedef struct {
   const struct hashmap** mapnodes;
   float zoomLevel;
   arPoint mapScaleMid;
+  arPoint mapTranslation;
 } MapViewData;
 
 arView* createMapView(MapViewData* data);

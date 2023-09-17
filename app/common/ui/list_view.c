@@ -8,15 +8,19 @@
 #include "list_view.h"
 #include <util/tagged_union.h>
 
-static void renderUniformListView(arView* self, Olivec_Canvas* canvas, arRect bounds) {
+#define OLIVEC_IMPLEMENTATION
+#include <olive.c>
+
+static void renderUniformListView(arView* self, Olivec_Canvas* canvas) {
     UniformListViewData* data = self->data;
-    
+
     arView** subviews = self->subViews->values;
-    int y = bounds.y;
-    
+    int y = 0;
+
     for (int i = 0; i < self->subViews->size; i++) {
-        subviews[i]->render(subviews[i], canvas,
-                            (arRect){bounds.x, y, bounds.w, data->subviewHeight});
+        Olivec_Canvas subcanvas = olivec_subcanvas(*canvas, 0, y, canvas->width, data->subviewHeight);
+        subviews[i]->render(subviews[i], &subcanvas);
+                            // (arRect){bounds.x, y, bounds.w, data->subviewHeight});
         y += data->subviewHeight + data->itemMargin;
     }
 }

@@ -27,14 +27,15 @@ struct AppState {
   /// min scale of the map
   float minMapCap;
   float maxMapCap;
-  /// The middle point of the scale action
-  arPoint* mapScaleMid;
 
   // UI State
   float* mapViewLevel;
   int* navSize;
   int* selectedNavItem;
   NavViewData* navViewData;
+  /// The middle point of the scale action
+  arPoint* mapScaleMid;
+  arPoint* mapTranslation;
 
   /// Should the native renderer render the view?
   bool viewChanged;
@@ -71,5 +72,9 @@ void setMapMid(arPoint);
 void setShouldRerender(void);
 
 bool isViewMapView(void);
+
+void panMap(arPoint translation, arRect currentFrame);
+
+void resetMapView(void);
 
 #endif

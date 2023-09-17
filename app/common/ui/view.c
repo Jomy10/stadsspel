@@ -5,11 +5,11 @@ bool recteql(arRect* rect1, arRect* rect2) {
   return memcmp(rect1, rect2, sizeof(arRect)) == 0;
 }
 
-void renderArView(arView* self, Olivec_Canvas* canvas, arRect bounds) {
+void renderArView(arView* self, Olivec_Canvas* canvas) {
   arView* view;
   for (int i = 0; i < self->subViews->size; i++) {
     view = ((arView**)(self->subViews->values))[i];
-    view->render(view, canvas, bounds);
+    view->render(view, canvas);
   }
 }
 
