@@ -12,7 +12,7 @@
 #undef OLIVEC_IMPLEMENTATION
 #include <olive.c>
 
-Allocator* arAllocator;
+// Allocator* arAllocator;
 
 typedef struct {
   int x, y, w, h;

@@ -1,5 +1,7 @@
 #/usr/bin/env zsh
 
+cd "$(dirname "$0")"
+
 cmd=$1
 if [[ $cmd == "" ]]; then
   cmd=$(gum choose "build" "install" "gen-key" "emulator")
@@ -7,7 +9,7 @@ fi
 
 case $cmd in
   build)
-    sh dev-util/build_app.sh 2>&1 | ruby dev-util/in_colorize.rb
+    sh dev-util/build_app.sh 2>&1 #| ruby dev-util/in_colorize.rb
     ;;
   install)
     # Installs the app on the running simulator
@@ -31,4 +33,3 @@ case $cmd in
     esac
     ;;
 esac
-

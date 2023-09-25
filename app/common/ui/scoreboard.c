@@ -10,6 +10,8 @@
 #define OLIVEC_IMPLEMENTATION
 #include <olive.c>
 
+static Allocator* arAllocator;
+
 static void renderScoreboardContent(arView* self, Olivec_Canvas* canvas) {
     //olivec_rect(*canvas, bounds.x, bounds.y, bounds.w, bounds.h, 0xFF0b0b06);
     olivec_fill(*canvas, 0xFFb0b06);

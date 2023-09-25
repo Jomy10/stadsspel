@@ -12,6 +12,8 @@
 #define OLIVEC_IMPLEMENTATION
 #include <olive.c>
 
+extern Allocator* arAllocator;
+
 void renderNavView(struct _arView* self, Olivec_Canvas* canvas) {
   if (self->subViews == NULL) return;
 

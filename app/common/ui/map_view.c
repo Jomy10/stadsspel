@@ -18,6 +18,8 @@
 
 #define err printf
 
+extern Allocator* arAllocator;
+
 void renderStreets(Olivec_Canvas* canvas, int renX, int renY, int renW, int renH, float zoomLevel, arPoint zoomMid, arPoint translation, const MapRenderObjects *objs, const struct hashmap *mapnodes);
 void renderStreet(Olivec_Canvas* canvas, const arPoint *points, int pointsCount, const char *kind);
 
@@ -78,9 +80,6 @@ void renderStreets(Olivec_Canvas* canvas, int renX, int renY, int renW, int renH
           .x = frame.x /*- (frame.x - renX) */+ node->x * frame.w, // renW * zoomLevel,
           .y = frame.y /*- (frame.y - renY) */+ node->y * frame.h, // renH * zoomLevel,
       };
-
-      assert(!isnan(point.x));
-      assert(!isnan(point.y));
 
       vec_append(points, &point);
     }

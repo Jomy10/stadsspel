@@ -13,6 +13,8 @@
 
 #include <stdio.h>
 
+extern Allocator* arAllocator;
+
 void renderBackgroundFill(arView* view, Olivec_Canvas* canvas) {
   BackgroundFillViewData* data = view->data;
   //printf("Rendering backoung with color %#08x\n", data->fillColor);

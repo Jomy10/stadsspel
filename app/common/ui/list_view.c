@@ -11,6 +11,8 @@
 #define OLIVEC_IMPLEMENTATION
 #include <olive.c>
 
+extern Allocator* arAllocator;
+
 static void renderUniformListView(arView* self, Olivec_Canvas* canvas) {
     UniformListViewData* data = self->data;
 

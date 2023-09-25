@@ -1,6 +1,8 @@
 #include "include/view.h"
 #include <string.h>
 
+Allocator* arAllocator;
+
 bool recteql(arRect* rect1, arRect* rect2) {
   return memcmp(rect1, rect2, sizeof(arRect)) == 0;
 }

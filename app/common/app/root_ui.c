@@ -6,6 +6,8 @@
 #include <ui/background_view.h>
 #include <ui/scoreboard.h>
 
+extern Allocator* arAllocator;
+
 void createRootView(
   arView** root,
   // output data

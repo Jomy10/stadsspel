@@ -16,3 +16,6 @@
 [submodule "app/android/cnfa"]
 	path = app/android/cnfa
 	url = https://github.com/cntools/cnfa/
+[submodule "app/deps/minifb"]
+	path = app/deps/minifb
+	url = https://github.com/emoon/minifb
