@@ -29,6 +29,7 @@ cmd :build do
   puts "Building for #{ANDROID_ARCH}..."
   call :make_dirs
   call :build_native_activity
+  call :build_minifb
   call :build_obj
   call :build_shared_lib
 end
@@ -54,7 +55,10 @@ cmd :build_obj, each([
     cflags = ANDROID_CXX_FLAGS
   end
 
-  sh %(#{cc} #{cflags} -c #{$file} -I../out/include -I#{File.join ANDROID_NDK, "sources/android/native_app_glue"} -o #{File.join(ANDROID_OBJ_OUT, $file.name + ".o")})
+  sh %(#{cc} #{cflags} -c #{$file} -I../out/include ) +
+    %(-I#{File.join ANDROID_NDK, "sources/android/native_app_glue"} ) +
+    %(-I#{"../deps/minifb/include"} ) +
+    %(-o #{File.join(ANDROID_OBJ_OUT, $file.name + ".o")})
 end
 
 cmd :build_native_activity do
@@ -72,7 +76,45 @@ cmd :build_native_activity_archive, all(File.join(ANDROID_OBJ_OUT, "android_nati
   sh %(#{ANDROID_AR} rc #{File.join(ANDROID_LIB_OUT, "libandroid_native_app_glue.a")} #{$files})
 end
 
-cmd :build_shared_lib, all([File.join(ANDROID_OBJ_OUT, "**/*.o")]) do
+cmd :build_minifb do
+  call :build_minifb_obj
+  call :build_minifb_lib
+end
+
+cmd :build_minifb_obj, each([
+  # "../deps/minifb/include/MiniFB.h",
+  # "../deps/minifb/include/MiniFB_cpp.h",
+  # "../deps/minifb/include/MiniFB_enums.h",
+  "../deps/minifb/src/MiniFB_common.c",
+  "../deps/minifb/src/MiniFB_cpp.cpp",
+  "../deps/minifb/src/MiniFB_internal.c",
+  # "../deps/minifb/src/MiniFB_internal.h",
+  "../deps/minifb/src/MiniFB_timer.c",
+  "../deps/minifb/src/MiniFB_linux.c",
+  # "../deps/minifb/src/WindowData.h",
+  "../deps/minifb/src/android/AndroidMiniFB.c",
+  # "../deps/minifb/src/android/WindowData_Android.h",
+]) do
+  out = File.join(ANDROID_OBJ_OUT, "minifb")
+  if !Dir.exist?(out)
+    FileUtils.mkdir_p(out)
+  end
+  sh %(#{$file.ext == ".cpp" ? ANDROID_CXX : ANDROID_CC} ) +
+    %(#{$file.ext == ".cpp" ? ANDROID_CXX_FLAGS : ANDROID_C_FLAGS} ) +
+    %(-c #{$file} ) +
+    [
+      "#{ANDROID_NDK}/sources/android/native_app_glue",
+      "../deps/minifb/include",
+      "../deps/minifb/src",
+    ].map { |p| "-I#{p}" }.join(" ") + " " +
+    %(-o #{out + "/" + $file.name + ".o"})
+end
+
+cmd :build_minifb_lib, all(File.join(ANDROID_OBJ_OUT, "minifb", "*.o")) do
+  sh %(#{ANDROID_AR} rc #{File.join(ANDROID_LIB_OUT, "libminifb.a")} #{$files})
+end
+
+cmd :build_shared_lib, all([File.join(ANDROID_OBJ_OUT, "main.o")]) do
   puts $files
   libs = Dir[File.join(ANDROID_LIB_OUT, "*.a")].map do |lib|
     "-l#{File.basename(lib,".a").gsub("lib", "")}"
@@ -83,7 +125,7 @@ cmd :build_shared_lib, all([File.join(ANDROID_OBJ_OUT, "**/*.o")]) do
   end.join(" ")
   # sh %(#{ANDROID_CC} -Wall -DNDEBUG -O2 -u ANativeActivity_onCreate -Wl,--build-id=sha1 -Wl,--no-rosegment -Wl,--fatal-warnings -Wl,--gc-sections -Qunused-arguments -Wl,--no-undefined -shared #{libs} -L#{ANDROID_SYSROOT} #{shared_libs} -I#{ANDROID_INCLUDE_OUT} -o #{File.join(ANDROID_LIB_OUT, "libstadsspel.so")} #{$files} -Wl,--export-dynamic -landroid -llog -static-libstdc++ -latomic -lm)
   puts $files
-  sh %(#{ANDROID_CC} -fPIC -std=gnu++11 -Wall -O2 -g -DNDEBUG ) +
+  sh %(#{ANDROID_CXX} -fPIC -std=gnu++11 -Wall -O2 -g -DNDEBUG ) +
     %(-Wl,--build-id=sha1 -Wl,--no-rosegment -Wl,--fatal-warnings -Wl,--gc-sections ) +
     %(-Qunused-arguments -Wl,--no-undefined ) +
     %(-u ANativeActivity_onCreate ) +

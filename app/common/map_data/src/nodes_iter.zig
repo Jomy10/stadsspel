@@ -8,7 +8,7 @@ pub const NodesIterator = extern struct {
 pub fn RO_nodesIter(cobjs: *ro.CMapRenderObjects) callconv(.C) NodesIterator {
     const objs = @as(*ro.MapRenderObjects, @ptrCast(@alignCast(cobjs.ptr.?)));
     var iter: *ro.NODES_HM_T.Iterator = std.heap.c_allocator.create(ro.NODES_HM_T.Iterator) catch |err| {
-        std.debug.print("Out of memory: {}\n", .{err});
+        ro.logErr("Out of memory: {}\n", .{err});
         return NodesIterator{ .iterator = null };
     };
     iter.* = objs.nodes.iterator();

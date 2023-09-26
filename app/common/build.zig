@@ -57,6 +57,7 @@ pub fn build(b: *std.Build) void {
         .ios => true,
         else => false,
     } else false);
+    build_options.addOption(bool, "is_android", android);
 
     //=== options ===//
     const compile_c = b.option(bool, "compile-c", "Compile to a library usable from C") orelse false;

@@ -28,7 +28,7 @@ ANDROID_VERSION=13
 ARCH=(ENV["ARCH"]||"X86_64").upcase
 ANDROID_MAKE_FLAGS="TARGET_#{ARCH}"
 
-PLATFORM=ENV['PLATFORM']||'macos'
+PLATFORM=ENV['PLATFORM']||((ARGV[0] == "android") ? 'android' : 'macos')
 PLATFORM_FLAGS=get_platform_flags(PLATFORM)
 ZIG_PLATFORM_FLAGS=get_platform_zig_flags(PLATFORM)
 
@@ -46,7 +46,7 @@ CFLAGS=""
 AR=get_ar(PLATFORM)
 WARN='-Wall -Wextra'
 OUT_BASE=ENV['OUT']||'out'
-OUT_BASE_PLATFORM=File.join(OUT_BASE, PLATFORM == "android" ? "#{PLATFORM}-#{ARCH}" : PLATFORM)
+OUT_BASE_PLATFORM=File.join(OUT_BASE, PLATFORM == "android" ? "#{PLATFORM}-#{ARCH.downcase}" : PLATFORM)
 OPT=(ENV['OPT']||'DEBUG')
 
 case (OPT.upcase)
@@ -141,7 +141,7 @@ cmd :build do
     :app => :build_app,
     :ui => :build_ui,
     :arena => :build_arena,
-    :server_glue => :build_server_glue
+    :server_glue => :build_server_glue,
   }
   # Determine commands to run
   if ((ARGV.size < 2) || (ARGV[1].to_sym == :all))
@@ -180,10 +180,9 @@ end
 
 # build and run the android app
 cmd :android do
+  call :build
   Dir.chdir("android") do
-    # TARGET_XXX
-
-    sh %(make clean run STOREPASS=devpass CFLAGS="-g -I../out/include -L../out/android-arm64/debug/lib -lutil -lrender_objects" LDFLAGS="-g")
+    sh %(STOREPASS=android ANDROID_ARCH=#{ARCH.downcase} sh build.sh build)
   end
 end
 

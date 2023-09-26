@@ -5,6 +5,14 @@ const Allocator = std.mem.Allocator;
 const StringHashMap = std.StringHashMap;
 const build_options = @import("build_options");
 
+fn logErr(comptime fmt: []const u8, args: anytype) void {
+    if (build_options.is_android) {
+        @panic("An error occurred");
+    } else {
+        std.debug.print(fmt, args);
+    }
+}
+
 const string = switch (build_options.no_cstd_import) {
     true => struct {
         pub fn strlen(str: [*]const u8) usize {
@@ -71,14 +79,14 @@ pub const CMapRenderObjects = extern struct {
 
 export fn makeRenderObjects() CMapRenderObjects {
     var ptr = std.heap.c_allocator.create(MapRenderObjects) catch |err| {
-        std.debug.print("{}\n", .{err});
+        logErr("{}\n", .{err});
         return CMapRenderObjects{ .ptr = null };
     };
     var cobjs = CMapRenderObjects{
         .ptr = ptr,
     };
     @as(*MapRenderObjects, @ptrCast(@alignCast(cobjs.ptr.?))).* = MapRenderObjects.init(std.heap.page_allocator) catch |err| {
-        std.debug.print("{}\n", .{err});
+        logErr("{}\n", .{err});
         std.heap.c_allocator.destroy(@as(*MapRenderObjects, @ptrCast(@alignCast(cobjs.ptr.?))));
         cobjs.ptr = null;
         return cobjs;
@@ -179,7 +187,7 @@ pub const Node = CNode;
 export fn addNode(cobjs: *CMapRenderObjects, node: Node) void {
     var objs: *MapRenderObjects = @ptrCast(@alignCast(cobjs.ptr.?));
     objs.nodes.put(node.id, node) catch |err| {
-        std.debug.print("Couldn't add Node: {}\n", .{err});
+        logErr("Couldn't add Node: {}\n", .{err});
     };
 }
 
@@ -220,11 +228,11 @@ pub const MapRenderObjects = struct {
         const highway: ?[]const u8 = way.tags.get("highway");
         if (highway != null) {
             const nodes: []u64 = self.allocator.dupe(u64, way.nodes.items[0..way.nodes.len]) catch |err| {
-                std.debug.print("Couldn't allocate nodes array for street: {}\n", .{err});
+                logErr("Couldn't allocate nodes array for street: {}\n", .{err});
                 return;
             };
             const highway_type: [:0]u8 = self.allocator.dupeZ(u8, highway.?) catch |err| {
-                std.debug.print("{}", .{err});
+                logErr("{}", .{err});
                 return;
             };
             var street = CRO_Street{
@@ -234,7 +242,7 @@ pub const MapRenderObjects = struct {
             };
 
             self.streets.append(street) catch |err| {
-                std.debug.print("Couldn't add street: {}\n", .{err});
+                logErr("Couldn't add street: {}\n", .{err});
                 return;
             };
         }
@@ -243,15 +251,15 @@ pub const MapRenderObjects = struct {
 
 export fn printObjsSummary(cobjs: *CMapRenderObjects) void {
     var objs: *MapRenderObjects = @ptrCast(@alignCast(cobjs.ptr.?));
-    std.debug.print("RenderObjects: streetscount={}, nodescount={} \n  Bounds={}\n", .{ objs.streets.len, objs.nodes.len(), objs.bounds });
+    logErr("RenderObjects: streetscount={}, nodescount={} \n  Bounds={}\n", .{ objs.streets.len, objs.nodes.len(), objs.bounds });
 }
 
 export fn printObjs(cobjs: *CMapRenderObjects) void {
     var objs: *MapRenderObjects = @ptrCast(@alignCast(cobjs.ptr.?));
-    std.debug.print("RenderObjects: streetscount={}, nodescount={} \n  Bounds={}\n", .{ objs.streets.len, objs.nodes.len(), objs.bounds });
+    logErr("RenderObjects: streetscount={}, nodescount={} \n  Bounds={}\n", .{ objs.streets.len, objs.nodes.len(), objs.bounds });
     var i: u32 = 0;
     while (i < objs.streets.len) : (i += 1) {
-        std.debug.print("  Street: {}\n", .{objs.streets.items[i]});
+        logErr("  Street: {}\n", .{objs.streets.items[i]});
     }
 }
 
@@ -266,7 +274,7 @@ const Way = struct {
 
 export fn initWay() ?*anyopaque {
     var way_ptr = std.heap.c_allocator.create(Way) catch |err| {
-        std.debug.print("{}\n", .{err});
+        logErr("{}\n", .{err});
         return null;
     };
     var cway: *anyopaque = way_ptr;
@@ -274,7 +282,7 @@ export fn initWay() ?*anyopaque {
     way.arena = std.heap.ArenaAllocator.init(std.heap.c_allocator);
     way.allocator = way.arena.allocator();
     way.nodes = Vec(u64).init(std.heap.c_allocator) catch |err| {
-        std.debug.print("Couldn't init way (nodes couldn't be allocated): {}\n", .{err});
+        logErr("Couldn't init way (nodes couldn't be allocated): {}\n", .{err});
         return null;
     };
     way.tags = StringHashMap([]const u8).init(std.heap.c_allocator);
@@ -300,7 +308,7 @@ export fn setWay(cway: *anyopaque, id: u64) void {
 export fn way_addNode(cway: *anyopaque, id: u64) void {
     var way: *Way = @ptrCast(@alignCast(cway));
     way.nodes.append(id) catch |err| {
-        std.debug.print("Couldn't add Node: {}\n", .{err});
+        logErr("Couldn't add Node: {}\n", .{err});
     };
 }
 
@@ -308,11 +316,11 @@ export fn way_addTag(cway: *anyopaque, key: [*c]const u8, val: [*c]const u8) voi
     var way: *Way = @ptrCast(@alignCast(cway));
 
     const k = way.allocator.alloc(u8, string.strlen(key)) catch |err| {
-        std.debug.print("{}\n", .{err});
+        logErr("{}\n", .{err});
         return;
     };
     const v = way.allocator.alloc(u8, string.strlen(val)) catch |err| {
-        std.debug.print("{}\n", .{err});
+        logErr("{}\n", .{err});
         return;
     };
 
@@ -320,7 +328,7 @@ export fn way_addTag(cway: *anyopaque, key: [*c]const u8, val: [*c]const u8) voi
     @memcpy(v, @as([*]const u8, @ptrCast(val)));
 
     way.tags.put(k, v) catch |err| {
-        std.debug.print("Couldn't put tag: {}\n", .{err});
+        logErr("Couldn't put tag: {}\n", .{err});
     };
 }
 
@@ -339,7 +347,7 @@ const NodesIterator = extern struct {
 export fn RO_nodesIter(cobjs: *CMapRenderObjects) callconv(.C) NodesIterator {
     const objs = @as(*MapRenderObjects, @ptrCast(@alignCast(cobjs.ptr.?)));
     var iter: *NODES_HM_T.Iterator = std.heap.c_allocator.create(NODES_HM_T.Iterator) catch |err| {
-        std.debug.print("Out of memory: {}\n", .{err});
+        logErr("Out of memory: {}\n", .{err});
         return NodesIterator{ .iterator = null };
     };
     iter.* = objs.nodes.iterator();
